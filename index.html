@@ -1,0 +1,2854 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EDUVORA — Next-Gen Gamified EdTech & Learning Universe</title>
+  <!-- Google Fonts: Plus Jakarta Sans & Fredoka for playful headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Canvas Confetti for Celebrations -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Tone.js for Synthesized Gamified Audio Effects (Zero external URLs) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Fredoka"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              indigo: '#4F46E5',
+              violet: '#7C3AED',
+              amber: '#F59E0B',
+              emerald: '#10B981',
+              rose: '#F43F5E',
+              cyan: '#06B6D4',
+            }
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'float-delayed': 'float 7s ease-in-out 2s infinite',
+            'float-fast': 'float 4s ease-in-out 1s infinite',
+            'pulse-glow': 'pulseGlow 2.5s infinite',
+            'bounce-slow': 'bounce 3s infinite',
+            'spin-slow': 'spin 16s linear infinite',
+            'wiggle': 'wiggle 1s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-14px) rotate(2deg)' },
+            },
+            pulseGlow: {
+              '0%, 100%': { boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.7)' },
+              '50%': { boxShadow: '0 0 0 18px rgba(16, 185, 129, 0)' },
+            },
+            wiggle: {
+              '0%, 100%': { transform: 'rotate(-3deg)' },
+              '50%': { transform: 'rotate(3deg)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Gamified Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(99, 102, 241, 0.06);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #6366F1, #8B5CF6);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #4F46E5, #7C3AED);
+    }
+
+    /* Tactile 3D Button Push Effect (Duolingo/Kahoot Vibe) */
+    .btn-3d {
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      top: 0;
+    }
+    .btn-3d:active {
+      top: 4px;
+      box-shadow: 0 0px 0 0 transparent !important;
+    }
+
+    /* Background Decorative Dot Grid Pattern */
+    .bg-dot-pattern {
+      background-image: radial-gradient(rgba(99, 102, 241, 0.16) 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
+    }
+    .dark .bg-dot-pattern {
+      background-image: radial-gradient(rgba(139, 92, 246, 0.18) 1.5px, transparent 1.5px);
+    }
+
+    /* Glassmorphism & Card Depth */
+    .glass-card {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* Organic Blob Shape */
+    .blob-shape {
+      border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+    }
+
+    /* Shimmer Animation */
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 50%; height: 100%;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.35), transparent);
+      transform: skewX(-25deg);
+      animation: shimmerMove 3.5s infinite;
+    }
+    @keyframes shimmerMove {
+      100% { left: 200%; }
+    }
+
+    /* Custom 3D Podium Perspective */
+    .podium-step {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .podium-step:hover {
+      transform: translateY(-8px) scale(1.02);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden">
+
+  <!-- Toast Notification Stack -->
+  <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
+
+  <!-- Global Modal Container -->
+  <div id="modal-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] hidden items-center justify-center p-4 transition-opacity duration-200">
+    <div id="modal-content" class="bg-white dark:bg-slate-900 border-2 border-indigo-100 dark:border-slate-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-200 scale-95 opacity-0">
+      <!-- Dynamic Modal Inner Content -->
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- VIEW 1: LANDING HERO SECTION (RICH VISUAL UNIVERSE)                   -->
+  <!-- ===================================================================== -->
+  <section id="landing-view" class="relative min-h-screen bg-dot-pattern overflow-hidden">
+    <!-- Ambient Organic Blobs & Decorative Circles -->
+    <div class="pointer-events-none absolute -top-32 -left-32 w-[520px] h-[520px] bg-gradient-to-br from-indigo-500/25 via-purple-500/20 to-pink-500/20 blob-shape blur-3xl animate-spin-slow"></div>
+    <div class="pointer-events-none absolute top-1/3 -right-40 w-[480px] h-[480px] bg-gradient-to-tr from-amber-400/25 via-orange-400/20 to-rose-400/20 blob-shape blur-3xl animate-float"></div>
+    <div class="pointer-events-none absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-gradient-to-t from-emerald-400/20 to-cyan-400/20 rounded-full blur-3xl"></div>
+
+    <!-- Top Floating Navbar -->
+    <header class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer group" onclick="app.navigate('landing')">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+          <!-- Custom EDUVORA Owl/Spark Logo SVG -->
+          <svg class="w-7 h-7" viewBox="0 0 36 36" fill="none">
+            <path d="M18 3L31 10.5V25.5L18 33L5 25.5V10.5L18 3Z" stroke="currentColor" stroke-width="2.5" fill="rgba(255,255,255,0.15)"/>
+            <circle cx="13.5" cy="17" r="3" fill="#FBBF24"/>
+            <circle cx="22.5" cy="17" r="3" fill="#34D399"/>
+            <path d="M15 23.5C16.5 25 19.5 25 21 23.5" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M18 3V9" stroke="#FBBF24" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <span class="font-display text-2xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 via-violet-600 to-amber-500 bg-clip-text text-transparent">EDUVORA</span>
+          <span class="block text-[10px] font-bold uppercase tracking-widest text-indigo-500 dark:text-indigo-400 -mt-1">Play • Learn • Conquer</span>
+        </div>
+      </div>
+
+      <!-- Quick Join Room Input Pill -->
+      <div class="hidden md:flex items-center bg-white/90 dark:bg-slate-900/90 border-2 border-indigo-200 dark:border-slate-700 rounded-2xl p-1.5 shadow-md">
+        <span class="pl-3 pr-2 text-indigo-500"><i class="ph-fill ph-game-controller text-xl"></i></span>
+        <input id="hero-room-code" type="text" maxlength="6" placeholder="KODE ROOM (cth: 849201)" class="bg-transparent text-sm font-bold uppercase tracking-wider w-44 focus:outline-none placeholder:font-normal placeholder:tracking-normal text-slate-700 dark:text-slate-200" />
+        <button onclick="app.joinRoomFromHero()" class="btn-3d bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-[0_3px_0_#b45309]">
+          GABUNG LIVE
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="app.toggleDarkMode()" title="Ganti Tema" class="w-11 h-11 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-amber-400 hover:scale-105 transition-transform shadow-sm">
+          <i id="landing-theme-icon" class="ph-fill ph-moon-stars text-xl"></i>
+        </button>
+        <button onclick="app.enterApp('teacher')" class="btn-3d bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm px-5 py-2.5 rounded-2xl shadow-[0_4px_0_#3730a3] flex items-center gap-2">
+          <i class="ph-bold ph-rocket-launch"></i>
+          <span>Masuk Studio</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Hero Grid -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        
+        <!-- Left Column: Typography, Dual CTAs & Live Trust Badges -->
+        <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-amber-500/10 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold text-xs shadow-sm animate-bounce-slow">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <span>PLATFORM EDTECH GAMIFIKASI GENERASI BARU • v4.2 LIVE</span>
+          </div>
+
+          <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight text-slate-900 dark:text-white">
+            Ubah Kelas Biasa Jadi
+            <span class="relative inline-block">
+              <span class="relative z-10 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">Petualangan Epik!</span>
+              <svg class="absolute -bottom-2 left-0 w-full h-3 text-amber-400" viewBox="0 0 200 12" fill="none">
+                <path d="M2 9C50 2 150 2 198 9" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </h1>
+
+          <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            Gabungkan keseruan <strong>Live Quiz Arena</strong>, materi interaktif kaya visual, bank soal cerdas, serta sistem <strong>XP, Streak & Hall of Champions</strong> dalam satu ekosistem terpadu untuk Guru & Siswa.
+          </p>
+
+          <!-- Dual Distinct CTA Buttons -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <button onclick="app.enterApp('teacher')" class="btn-3d w-full sm:w-auto px-7 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 text-white font-extrabold text-base shadow-[0_6px_0_#312e81] hover:brightness-110 flex items-center justify-center gap-3 group">
+              <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center group-hover:rotate-12 transition-transform">
+                <i class="ph-fill ph-chalkboard-teacher text-xl"></i>
+              </div>
+              <div class="text-left">
+                <div class="text-[10px] uppercase tracking-wider opacity-85 font-semibold">Mode Pengajar</div>
+                <div>Mulai Sebagai Guru</div>
+              </div>
+            </button>
+
+            <button onclick="app.enterApp('student')" class="btn-3d w-full sm:w-auto px-7 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-slate-950 font-extrabold text-base shadow-[0_6px_0_#b45309] hover:brightness-105 flex items-center justify-center gap-3 group">
+              <div class="w-8 h-8 rounded-xl bg-slate-950/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="ph-fill ph-student text-xl"></i>
+              </div>
+              <div class="text-left">
+                <div class="text-[10px] uppercase tracking-wider opacity-80 font-bold">Mode Petualang</div>
+                <div>Masuk Dunia Siswa</div>
+              </div>
+            </button>
+          </div>
+
+          <!-- Interactive Mini Feature Pills -->
+          <div class="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+              <i class="ph-fill ph-check-circle text-emerald-500 text-base"></i> 10+ Mode Game Interaktif
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 text-xs font-bold">
+              <i class="ph-fill ph-sparkle text-sky-500 text-base"></i> 30+ Karakter Avatar
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-bold">
+              <i class="ph-fill ph-chart-line-up text-rose-500 text-base"></i> Analitik Real-Time
+            </span>
+          </div>
+        </div>
+
+        <!-- Right Column: Rich Layered Illustration & Floating Interactive Cards -->
+        <div class="lg:col-span-6 relative">
+          <div class="relative mx-auto max-w-lg">
+            
+            <!-- Floating XP Coin Top Left -->
+            <div class="animate-float absolute -top-6 -left-4 sm:-left-8 z-30 bg-gradient-to-br from-amber-300 to-amber-500 p-3 rounded-2xl shadow-xl border-2 border-white dark:border-slate-800 flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-xl bg-amber-600/20 flex items-center justify-center text-amber-950 font-display font-bold text-lg">XP</div>
+              <div>
+                <div class="text-[10px] font-extrabold uppercase text-amber-950/75">Combo Bonus!</div>
+                <div class="font-display font-bold text-sm text-amber-950">+450 XP Earned</div>
+              </div>
+            </div>
+
+            <!-- Floating Trophy Top Right -->
+            <div class="animate-float-delayed absolute -top-8 -right-2 sm:-right-6 z-30 bg-white dark:bg-slate-900 p-3.5 rounded-2xl shadow-xl border-2 border-indigo-100 dark:border-slate-700 flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-2xl shadow-inner">
+                🏆
+              </div>
+              <div>
+                <div class="text-[11px] font-bold text-slate-400">Rank Global</div>
+                <div class="font-display font-bold text-sm text-indigo-600 dark:text-indigo-400">#1 Grand Champion</div>
+              </div>
+            </div>
+
+            <!-- Floating Puzzle & Books Badges -->
+            <div class="animate-float-fast absolute top-1/2 -left-6 sm:-left-10 z-30 w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 text-white shadow-lg border-2 border-white flex items-center justify-center text-2xl rotate-[-12deg]">
+              🧩
+            </div>
+            <div class="animate-float absolute top-1/3 -right-4 sm:-right-8 z-30 w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-400 to-pink-600 text-white shadow-lg border-2 border-white flex items-center justify-center text-2xl rotate-[12deg]">
+              📚
+            </div>
+
+            <!-- Main Central Hero Illustration Card (Original SVG Characters: Teacher with Book + Student Learning + Mascot) -->
+            <div class="relative z-20 bg-gradient-to-b from-indigo-600 via-violet-600 to-indigo-800 rounded-[2.2rem] p-6 sm:p-8 shadow-2xl border-4 border-white/80 dark:border-slate-800 overflow-hidden text-white">
+              <!-- Decorative Stars inside Banner -->
+              <div class="absolute top-4 left-1/3 text-amber-300 text-lg animate-pulse">✦</div>
+              <div class="absolute bottom-24 right-8 text-cyan-300 text-xl animate-pulse">★</div>
+              <div class="absolute top-16 right-1/4 text-pink-300 text-sm">✦</div>
+
+              <!-- Custom Vector Scene: Teacher & Student Character Illustration -->
+              <div class="relative h-56 sm:h-64 flex items-end justify-center">
+                <svg viewBox="0 0 420 230" class="w-full h-full drop-shadow-xl" fill="none">
+                  <!-- Glowing Backdrop Arch -->
+                  <circle cx="210" cy="135" r="95" fill="url(#heroGlow)" opacity="0.35"/>
+                  <defs>
+                    <radialGradient id="heroGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(210 135) rotate(90) scale(95)">
+                      <stop stop-color="#FDE047"/>
+                      <stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/>
+                    </radialGradient>
+                  </defs>
+
+                  <!-- TEACHER CHARACTER (Left-Center, Holding Magic Glowing Book) -->
+                  <g transform="translate(65, 25)">
+                    <!-- Body / Blazer -->
+                    <path d="M35 125C35 102 52 90 75 90C98 90 115 102 115 125V185H35V125Z" fill="#38BDF8"/>
+                    <path d="M63 90L75 118L87 90H63Z" fill="#FFFFFF"/>
+                    <!-- Head -->
+                    <circle cx="75" cy="58" r="30" fill="#FDBA74"/>
+                    <!-- Hair -->
+                    <path d="M45 55C45 32 60 22 77 22C96 22 107 34 105 56C101 44 90 38 75 38C60 38 50 45 45 55Z" fill="#1E293B"/>
+                    <circle cx="96" cy="28" r="11" fill="#1E293B"/>
+                    <!-- Glasses -->
+                    <circle cx="65" cy="58" r="8" stroke="#1E293B" stroke-width="2.5" fill="white" fill-opacity="0.3"/>
+                    <circle cx="86" cy="58" r="8" stroke="#1E293B" stroke-width="2.5" fill="white" fill-opacity="0.3"/>
+                    <line x1="73" y1="58" x2="78" y2="58" stroke="#1E293B" stroke-width="2.5"/>
+                    <!-- Eyes & Smile -->
+                    <circle cx="65" cy="58" r="2.5" fill="#1E293B"/>
+                    <circle cx="86" cy="58" r="2.5" fill="#1E293B"/>
+                    <path d="M69 70C72 74 79 74 82 70" stroke="#9A3412" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Open Book Held by Teacher -->
+                    <path d="M55 128L95 122L135 128V165L95 159L55 165V128Z" fill="#FBBF24" stroke="#B45309" stroke-width="2"/>
+                    <path d="M60 131L95 126L130 131V160L95 155L60 160V131Z" fill="#FFFBEB"/>
+                    <line x1="95" y1="126" x2="95" y2="155" stroke="#F59E0B" stroke-width="2"/>
+                    <!-- Sparkles from Book -->
+                    <circle cx="95" cy="108" r="4" fill="#FDE047"/>
+                    <circle cx="112" cy="102" r="3" fill="#34D399"/>
+                  </g>
+
+                  <!-- STUDENT CHARACTER (Right-Center, Wearing Headphones & Tablet/Rocket) -->
+                  <g transform="translate(215, 42)">
+                    <!-- Body / Hoodie -->
+                    <path d="M30 115C30 94 46 84 68 84C90 84 106 94 106 115V168H30V115Z" fill="#FB7185"/>
+                    <!-- Head -->
+                    <circle cx="68" cy="54" r="27" fill="#FED7AA"/>
+                    <!-- Spiky Playful Hair -->
+                    <path d="M40 48C42 25 58 18 72 20C86 22 97 30 96 48C88 38 76 35 65 36C52 37 45 42 40 48Z" fill="#312E81"/>
+                    <!-- Gaming/Study Headphones -->
+                    <rect x="36" y="42" width="8" height="22" rx="4" fill="#FBBF24"/>
+                    <rect x="92" y="42" width="8" height="22" rx="4" fill="#FBBF24"/>
+                    <path d="M40 44C40 24 96 24 96 44" stroke="#FBBF24" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Happy Eyes & Smile -->
+                    <circle cx="59" cy="54" r="2.8" fill="#1E293B"/>
+                    <circle cx="77" cy="54" r="2.8" fill="#1E293B"/>
+                    <path d="M62 65C65 69 72 69 75 65" stroke="#9A3412" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Laptop / Tablet Learning -->
+                    <rect x="38" y="114" width="60" height="40" rx="6" fill="#1E293B" stroke="#94A3B8" stroke-width="2"/>
+                    <circle cx="68" cy="134" r="6" fill="#38BDF8"/>
+                  </g>
+
+                  <!-- MASCOT OWL / DRAGON BUDDY (Center Floating) -->
+                  <g transform="translate(178, 12)">
+                    <circle cx="32" cy="32" r="22" fill="#10B981" stroke="#ECFDF5" stroke-width="2.5"/>
+                    <polygon points="16,16 22,4 28,15" fill="#FBBF24"/>
+                    <polygon points="48,16 42,4 36,15" fill="#FBBF24"/>
+                    <circle cx="25" cy="29" r="4" fill="white"/>
+                    <circle cx="39" cy="29" r="4" fill="white"/>
+                    <circle cx="26" cy="29" r="2" fill="#064E3B"/>
+                    <circle cx="40" cy="29" r="2" fill="#064E3B"/>
+                    <path d="M27 39Q32 44 37 39" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+                  </g>
+                </svg>
+              </div>
+
+              <!-- Embedded Animated Progress Card inside Hero -->
+              <div class="bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl p-4 mt-2">
+                <div class="flex items-center justify-between text-xs font-bold mb-2">
+                  <span class="flex items-center gap-1.5"><i class="ph-fill ph-fire text-amber-300 text-base"></i> Misi Harian Kelas 10-A</span>
+                  <span class="text-amber-300">88% Selesai</span>
+                </div>
+                <div class="w-full h-3 bg-indigo-950/60 rounded-full overflow-hidden p-0.5">
+                  <div class="h-full w-[88%] bg-gradient-to-r from-amber-300 via-emerald-400 to-cyan-300 rounded-full shimmer"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Floating Mini Leaderboard & Mini Game Card Preview -->
+            <div class="grid grid-cols-2 gap-3 -mt-6 relative z-30 px-2 sm:px-4">
+              <!-- Mini Leaderboard Preview -->
+              <div class="bg-white dark:bg-slate-900 rounded-2xl p-3.5 shadow-xl border-2 border-amber-200 dark:border-slate-700 hover:-translate-y-1 transition-transform">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-600 flex items-center gap-1">
+                    <i class="ph-fill ph-crown"></i> Top Skor
+                  </span>
+                  <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">LIVE</span>
+                </div>
+                <div class="space-y-1.5 text-xs">
+                  <div class="flex items-center justify-between font-bold">
+                    <span>🥇 Alya Putri</span>
+                    <span class="text-indigo-600 dark:text-indigo-400">9,840 XP</span>
+                  </div>
+                  <div class="flex items-center justify-between text-slate-500">
+                    <span>🥈 Rafa Pratama</span>
+                    <span>9,410 XP</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mini Game Card Preview -->
+              <div onclick="app.enterApp('game-creator')" class="cursor-pointer bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl p-3.5 shadow-xl border-2 border-emerald-300 hover:-translate-y-1 transition-transform">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-extrabold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">10 Game Modes</span>
+                  <i class="ph-fill ph-play-circle text-xl"></i>
+                </div>
+                <div class="font-display font-bold text-sm leading-tight mt-1">Quick Quiz & Team Battle</div>
+                <div class="text-[11px] text-emerald-100 mt-0.5">Klik untuk buka Studio →</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Creative Wave Divider & Role Showcase Cards -->
+      <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div onclick="app.enterApp('teacher')" class="cursor-pointer group bg-white dark:bg-slate-900 border-2 border-indigo-100 dark:border-slate-800 hover:border-indigo-500 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
+            📊
+          </div>
+          <h3 class="font-display text-xl font-bold mb-1">Editorial Teacher Hub</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Pantau performa kelas, kelola materi interaktif, video pembelajaran, dan luncurkan live quiz dalam hitungan detik.</p>
+        </div>
+
+        <div onclick="app.enterApp('waiting-room')" class="cursor-pointer group bg-white dark:bg-slate-900 border-2 border-amber-100 dark:border-slate-800 hover:border-amber-500 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+          <div class="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-950 text-amber-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
+            🎮
+          </div>
+          <h3 class="font-display text-xl font-bold mb-1">Live Arena & 30+ Avatars</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Ruang tunggu interaktif dengan reaksi emoji real-time, pilihan 30+ karakter lucu, hitung mundur epik, dan efek suara.</p>
+        </div>
+
+        <div onclick="app.enterApp('leaderboard')" class="cursor-pointer group bg-white dark:bg-slate-900 border-2 border-emerald-100 dark:border-slate-800 hover:border-emerald-500 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
+            🏆
+          </div>
+          <h3 class="font-display text-xl font-bold mb-1">Hall of Champions</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Podium juara 3D dengan mahkota emas, lencana langka (Common hingga Legendary), streak harian, dan analitik detail.</p>
+        </div>
+      </div>
+    </main>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- VIEW 2: MAIN APPLICATION SHELL (SIDEBAR + TOPBAR + DYNAMIC WORKSPACE) -->
+  <!-- ===================================================================== -->
+  <div id="app-shell" class="hidden min-h-screen flex bg-slate-50 dark:bg-slate-950">
+    
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="mobile-sidebar-overlay" onclick="app.toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 hidden lg:hidden"></div>
+
+    <!-- Rich Gamified Sidebar -->
+    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 z-50 h-screen w-72 bg-white dark:bg-slate-900 border-r-2 border-indigo-100/80 dark:border-slate-800 flex flex-col transition-all duration-300 -translate-x-full lg:translate-x-0 select-none">
+      
+      <!-- Sidebar Header: Logo + Collapse Button -->
+      <div class="p-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+        <div onclick="app.navigate('landing')" class="flex items-center gap-2.5 cursor-pointer overflow-hidden">
+          <div class="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md">
+            <i class="ph-fill ph-sparkle text-xl text-amber-300"></i>
+          </div>
+          <div class="sidebar-label">
+            <div class="font-display font-bold text-xl tracking-tight bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">EDUVORA</div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest -mt-1">EdTech Universe</div>
+          </div>
+        </div>
+        <button onclick="app.toggleSidebarCollapse()" title="Perkecil Sidebar" class="hidden lg:flex w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-slate-600 dark:text-slate-300 items-center justify-center transition-colors">
+          <i id="collapse-icon" class="ph-bold ph-caret-left"></i>
+        </button>
+        <button onclick="app.toggleMobileSidebar()" class="lg:hidden w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+
+      <!-- User Profile & Gamification Level Card inside Sidebar -->
+      <div class="p-4 sidebar-label">
+        <div class="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-2xl p-3.5 text-white shadow-lg relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 text-5xl opacity-20">🦉</div>
+          <div class="flex items-center gap-3">
+            <div onclick="app.navigate('profile')" class="cursor-pointer w-12 h-12 rounded-2xl bg-amber-300 text-2xl flex items-center justify-center border-2 border-white shadow-md shrink-0 hover:scale-105 transition-transform" id="sidebar-avatar">
+              🦊
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span id="sidebar-username" class="font-bold text-sm truncate">Budi Santoso, M.Pd</span>
+              </div>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span id="sidebar-role-badge" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-white/20 text-amber-200">GURU PRO</span>
+                <span class="text-[11px] font-bold text-indigo-100">Lv. <span id="sidebar-level">24</span></span>
+              </div>
+            </div>
+          </div>
+          <!-- XP Progress Bar -->
+          <div class="mt-3">
+            <div class="flex justify-between text-[10px] font-bold text-indigo-100 mb-1">
+              <span>XP: <span id="sidebar-xp">4,820</span> / 5,000</span>
+              <span>96%</span>
+            </div>
+            <div class="w-full h-2 bg-indigo-950/50 rounded-full overflow-hidden">
+              <div class="h-full w-[96%] bg-gradient-to-r from-amber-300 to-emerald-400 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Role Switcher Pill (Instant Demo Switch between Teacher & Student View) -->
+        <div class="mt-3 grid grid-cols-2 gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold">
+          <button id="role-btn-teacher" onclick="app.switchRole('teacher')" class="py-1.5 rounded-lg bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs transition-all">
+            👨‍🏫 Mode Guru
+          </button>
+          <button id="role-btn-student" onclick="app.switchRole('student')" class="py-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white transition-all">
+            🎒 Mode Siswa
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Menu List -->
+      <nav class="flex-1 overflow-y-auto px-3 py-2 space-y-1" id="sidebar-nav">
+        <!-- Populated dynamically via JS for active states, badges & expandable submenus -->
+      </nav>
+
+      <!-- Mini Achievement & Footer Controls -->
+      <div class="p-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+        <div class="sidebar-label bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl p-2.5 flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-400/20 flex items-center justify-center text-lg">🏅</div>
+          <div class="min-w-0 flex-1">
+            <div class="text-[11px] font-extrabold text-amber-800 dark:text-amber-300 truncate">Streak 14 Hari Aktif!</div>
+            <div class="text-[10px] text-amber-600 dark:text-amber-400">Bonus +150 XP siap klaim</div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-2">
+          <button onclick="app.toggleDarkMode()" class="flex-1 py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-colors">
+            <i id="sidebar-theme-icon" class="ph-fill ph-moon-stars text-indigo-500 dark:text-amber-400 text-base"></i>
+            <span class="sidebar-label">Tema</span>
+          </button>
+          <button onclick="app.navigate('landing')" title="Keluar ke Beranda" class="py-2 px-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors">
+            <i class="ph-bold ph-sign-out text-base"></i>
+            <span class="sidebar-label">Keluar</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Column -->
+    <div class="flex-1 flex flex-col min-w-0">
+      
+      <!-- Top Navigation Bar with Mandatory Back Button, Breadcrumb & Quick Actions -->
+      <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 glass-card border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <!-- Mobile Hamburger -->
+          <button onclick="app.toggleMobileSidebar()" class="lg:hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200">
+            <i class="ph-bold ph-list text-xl"></i>
+          </button>
+
+          <!-- Mandatory Universal Back Button -->
+          <button id="universal-back-btn" onclick="app.goBack()" class="btn-3d px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 shadow-[0_2px_0_#cbd5e1] dark:shadow-[0_2px_0_#1e293b]">
+            <i class="ph-bold ph-arrow-left text-sm text-indigo-600 dark:text-indigo-400"></i>
+            <span>Kembali</span>
+          </button>
+
+          <!-- Dynamic Breadcrumb -->
+          <div class="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400 truncate" id="top-breadcrumb">
+            <span>EDUVORA</span>
+            <i class="ph-bold ph-caret-right text-[10px]"></i>
+            <span class="text-indigo-600 dark:text-indigo-400 font-bold">Dashboard</span>
+          </div>
+        </div>
+
+        <!-- Global Search & Quick Status -->
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <div class="hidden md:flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl px-3 py-1.5 w-64 border border-transparent focus-within:border-indigo-500 transition-colors">
+            <i class="ph-bold ph-magnifying-glass text-slate-400 mr-2"></i>
+            <input type="text" placeholder="Cari materi, soal, game..." class="bg-transparent text-xs font-medium w-full focus:outline-none" onkeyup="if(event.key==='Enter') app.toast('Mencari: ' + this.value, 'info')"/>
+          </div>
+
+          <!-- Sound Toggle -->
+          <button onclick="app.toggleSound()" id="sound-toggle-btn" title="Efek Suara Gamifikasi" class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center hover:scale-105 transition-transform">
+            <i class="ph-fill ph-speaker-high text-lg"></i>
+          </button>
+
+          <!-- Notifications Bell -->
+          <button onclick="app.showNotificationsModal()" class="relative w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 flex items-center justify-center hover:scale-105 transition-transform">
+            <i class="ph-fill ph-bell-ringing text-lg"></i>
+            <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-white dark:border-slate-900">4</span>
+          </button>
+
+          <!-- Quick Launch Live Room -->
+          <button onclick="app.navigate('game-creator')" class="btn-3d hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs shadow-[0_3px_0_#047857]">
+            <i class="ph-fill ph-game-controller text-base"></i>
+            <span>Buat Game</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Dynamic Main Page Canvas -->
+      <main id="page-container" class="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto bg-dot-pattern">
+        <!-- Rendered dynamically by EDUVORA Engine -->
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT ENGINE: STATE, AUDIO SYNTH, DATA & ALL 12 FULL PAGES       -->
+  <!-- ===================================================================== -->
+  <script>
+    // -----------------------------------------------------------------------
+    // 1. SYNTHESIZED SOUND ENGINE (TONE.JS - ZERO EXTERNAL AUDIO URLS)
+    // -----------------------------------------------------------------------
+    const sfx = {
+      enabled: true,
+      synth: null,
+      init() {
+        if (!this.synth && window.Tone) {
+          this.synth = new Tone.PolySynth(Tone.Synth).toDestination();
+          this.synth.volume.value = -8;
+        }
+      },
+      play(type) {
+        if (!this.enabled || !window.Tone) return;
+        try {
+          if (Tone.context.state !== 'running') Tone.start();
+          this.init();
+          const now = Tone.now();
+          if (type === 'click') {
+            this.synth.triggerAttackRelease('C5', '32n', now);
+          } else if (type === 'correct') {
+            this.synth.triggerAttackRelease('E5', '16n', now);
+            this.synth.triggerAttackRelease('G5', '16n', now + 0.08);
+            this.synth.triggerAttackRelease('C6', '8n', now + 0.16);
+          } else if (type === 'wrong') {
+            this.synth.triggerAttackRelease('E3', '8n', now);
+            this.synth.triggerAttackRelease('Eb3', '8n', now + 0.12);
+          } else if (type === 'countdown') {
+            this.synth.triggerAttackRelease('A4', '16n', now);
+          } else if (type === 'start') {
+            this.synth.triggerAttackRelease(['C5', 'E5', 'G5', 'C6'], '4n', now);
+          } else if (type === 'levelup') {
+            this.synth.triggerAttackRelease('C5', '16n', now);
+            this.synth.triggerAttackRelease('E5', '16n', now + 0.07);
+            this.synth.triggerAttackRelease('G5', '16n', now + 0.14);
+            this.synth.triggerAttackRelease('B5', '16n', now + 0.21);
+            this.synth.triggerAttackRelease('C6', '4n', now + 0.28);
+          }
+        } catch (e) { /* Ignore audio autoplay restrictions */ }
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // 2. RICH MOCK DATABASE & 30+ ORIGINAL CHARACTER AVATARS
+    // -----------------------------------------------------------------------
+    const AVATARS = [
+      { id: 'av1', emoji: '🐉', name: 'Naga Mini', bg: 'from-emerald-400 to-teal-600' },
+      { id: 'av2', emoji: '🐱‍🚀', name: 'Kucing Astronot', bg: 'from-indigo-400 to-purple-600' },
+      { id: 'av3', emoji: '🤖', name: 'Robot Pintar', bg: 'from-cyan-400 to-blue-600' },
+      { id: 'av4', emoji: '🦊', name: 'Rubah Imut', bg: 'from-orange-400 to-rose-500' },
+      { id: 'av5', emoji: '🐧', name: 'Penguin Kutub', bg: 'from-sky-400 to-indigo-500' },
+      { id: 'av6', emoji: '🦖', name: 'Dino Cerdas', bg: 'from-lime-400 to-emerald-600' },
+      { id: 'av7', emoji: '🐼', name: 'Panda Gamer', bg: 'from-slate-500 to-slate-800' },
+      { id: 'av8', emoji: '🦄', name: 'Unicorn Ajaib', bg: 'from-pink-400 to-purple-600' },
+      { id: 'av9', emoji: '🦫', name: 'Capybara Santai', bg: 'from-amber-400 to-orange-600' },
+      { id: 'av10', emoji: '👽', name: 'Alien Galaksi', bg: 'from-violet-500 to-fuchsia-600' },
+      { id: 'av11', emoji: '👾', name: 'Jelly Monster', bg: 'from-fuchsia-500 to-rose-600' },
+      { id: 'av12', emoji: '🐰', name: 'Kelinci Pelangi', bg: 'from-rose-300 to-pink-500' },
+      { id: 'av13', emoji: '🦉', name: 'Burung Hantu Bijak', bg: 'from-amber-500 to-yellow-700' },
+      { id: 'av14', emoji: '🦁', name: 'Singa Juara', bg: 'from-yellow-400 to-amber-600' },
+      { id: 'av15', emoji: '🐙', name: 'Gurita Jenius', bg: 'from-purple-400 to-indigo-600' },
+      { id: 'av16', emoji: '🦈', name: 'Hiu Kilat', bg: 'from-blue-400 to-cyan-700' },
+      { id: 'av17', emoji: '🐝', name: 'Lebah Rajin', bg: 'from-yellow-300 to-amber-500' },
+      { id: 'av18', emoji: '🦋', name: 'Kupu-Kupu Kristal', bg: 'from-teal-300 to-cyan-600' },
+      { id: 'av19', emoji: '🐺', name: 'Serigala Siber', bg: 'from-slate-600 to-indigo-900' },
+      { id: 'av20', emoji: '🐸', name: 'Katak Roket', bg: 'from-green-400 to-emerald-600' },
+      { id: 'av21', emoji: '🐨', name: 'Koala Pemikir', bg: 'from-zinc-400 to-slate-600' },
+      { id: 'av22', emoji: '🐯', name: 'Harimau Bintang', bg: 'from-orange-500 to-red-600' },
+      { id: 'av23', emoji: '🦩', name: 'Flamingo Neon', bg: 'from-pink-400 to-rose-600' },
+      { id: 'av24', emoji: '🐢', name: 'Kura-Kura Turbo', bg: 'from-emerald-500 to-green-700' },
+      { id: 'av25', emoji: '🦔', name: 'Landak Listrik', bg: 'from-amber-400 to-yellow-600' },
+      { id: 'av26', emoji: '🦚', name: 'Merak Pelangi', bg: 'from-cyan-400 to-indigo-600' },
+      { id: 'av27', emoji: '🦦', name: 'Berang-Berang Pro', bg: 'from-amber-600 to-stone-700' },
+      { id: 'av28', emoji: '🐲', name: 'Naga Langit', bg: 'from-red-500 to-amber-500' },
+      { id: 'av29', emoji: '🧙‍♂️', name: 'Penyihir Kode', bg: 'from-indigo-600 to-violet-900' },
+      { id: 'av30', emoji: '🦸‍♀️', name: 'Kapten Edu', bg: 'from-rose-500 to-indigo-600' }
+    ];
+
+    const GAME_MODES = [
+      { id: 'quick-quiz', title: 'Quick Quiz', icon: '⚡', color: 'from-indigo-500 to-violet-600', category: 'Kecepatan', difficulty: 'Mudah', players: '1-100 Pemain', desc: 'Jawab pertanyaan pilihan ganda secepat mungkin untuk melipatgandakan streak XP!' },
+      { id: 'true-false', title: 'True or False', icon: '⚖️', color: 'from-emerald-500 to-teal-600', category: 'Logika Kilat', difficulty: 'Mudah', players: '1-100 Pemain', desc: 'Tentukan fakta atau mitos dalam hitungan detik sebelum waktu habis!' },
+      { id: 'matching-pairs', title: 'Matching Pairs', icon: '🔗', color: 'from-amber-500 to-orange-600', category: 'Asosiasi', difficulty: 'Sedang', players: 'Solo / Live', desc: 'Hubungkan konsep dengan definisi atau rumus pasangannya secara presisi.' },
+      { id: 'word-scramble', title: 'Word Scramble', icon: '🔤', color: 'from-pink-500 to-rose-600', category: 'Kosakata', difficulty: 'Sedang', players: '1-60 Pemain', desc: 'Susun kembali huruf-huruf acak menjadi istilah ilmiah yang tepat!' },
+      { id: 'puzzle-challenge', title: 'Puzzle Challenge', icon: '🧩', color: 'from-cyan-500 to-blue-600', category: 'Analisis', difficulty: 'Menantang', players: '1-50 Pemain', desc: 'Pecahkan potongan petunjuk bertahap untuk membuka gambar misteri.' },
+      { id: 'memory-card', title: 'Memory Card', icon: '🃏', color: 'from-purple-500 to-fuchsia-600', category: 'Daya Ingat', difficulty: 'Sedang', players: 'Solo / Duo', desc: 'Buka kartu berpasangan dan latih memori visualmu dengan bonus waktu.' },
+      { id: 'race-time', title: 'Race Against Time', icon: '🏎️', color: 'from-red-500 to-orange-600', category: 'Balapan', difficulty: 'Tinggi', players: 'Live Arena', desc: 'Setiap jawaban benar mendorong roketmu melesat menuju garis finis!' },
+      { id: 'millionaire', title: 'Who Wants to Be a Millionaire', icon: '💎', color: 'from-yellow-500 to-amber-700', category: 'Strategi', difficulty: 'Tinggi', players: '1-100 Pemain', desc: '15 tangga pertanyaan berjenjang dengan bantuan 50:50 & Tanya Petunjuk.' },
+      { id: 'case-study', title: 'Case Study Challenge', icon: '🔬', color: 'from-teal-500 to-emerald-700', category: 'HOTS / Kritis', difficulty: 'Ahli', players: 'Individu / Tim', desc: 'Analisis skenario dunia nyata dan pilih keputusan paling berdampak.' },
+      { id: 'team-battle', title: 'Team Battle', icon: '⚔️', color: 'from-violet-600 to-indigo-800', category: 'Kolaborasi', difficulty: 'Seru', players: '2-4 Tim', desc: 'Pertarungan antar squad! Kumpulkan energi tim untuk mengalahkan boss.' }
+    ];
+
+    const INITIAL_MATERIALS = [
+      { id: 'm1', title: 'Eksplorasi Tata Surya & Astrofisika Modern', category: 'Sains & Fisika', type: 'PDF', size: '4.8 MB', author: 'Budi Santoso, M.Pd', date: '15 Nov 2026', views: 342, downloads: 189, status: 'Published', color: 'from-indigo-500 to-blue-600', icon: '🪐', summary: 'Panduan visual interaktif membahas struktur planet, hukum Kepler, dan fenomena lubang hitam.' },
+      { id: 'm2', title: 'Aljabar Linear & Matriks Transformasi 3D', category: 'Matematika', type: 'DOCX', size: '2.3 MB', author: 'Siti Rahmawati, S.Si', date: '14 Nov 2026', views: 278, downloads: 145, status: 'Published', color: 'from-amber-500 to-orange-600', icon: '📐', summary: 'Konsep vektor, determinan, dan penerapannya dalam grafika komputer modern.' },
+      { id: 'm3', title: 'Revolusi Hijau & Ekosistem Berkelanjutan', category: 'Biologi', type: 'HTML', size: '1.9 MB', author: 'Dr. Hendra Wijaya', date: '12 Nov 2026', views: 419, downloads: 230, status: 'Popular', color: 'from-emerald-500 to-teal-600', icon: '🌿', summary: 'Modul interaktif tentang rantai makanan, siklus karbon, dan konservasi biodiversitas.' },
+      { id: 'm4', title: 'Sejarah Peradaban Nusantara & Jalur Rempah', category: 'Sejarah', type: 'PDF', size: '6.1 MB', author: 'Budi Santoso, M.Pd', date: '10 Nov 2026', views: 195, downloads: 98, status: 'Published', color: 'from-rose-500 to-pink-600', icon: '🏛️', summary: 'Peta interaktif pelayaran maritim Nusantara dan pertukaran budaya global.' },
+      { id: 'm5', title: 'Algoritma Pemrograman Python & Logika AI', category: 'Informatika', type: 'PDF', size: '3.7 MB', author: 'Rizky Pratama, M.Kom', date: '08 Nov 2026', views: 512, downloads: 310, status: 'Popular', color: 'from-violet-500 to-purple-700', icon: '💻', summary: 'Dasar struktur data, perulangan cerdas, dan pengenalan machine learning untuk pemula.' },
+      { id: 'm6', title: 'Creative Writing & Storytelling Digital', category: 'Bahasa', type: 'DOCX', size: '1.5 MB', author: 'Nadia Putri, M.Hum', date: '05 Nov 2026', views: 120, downloads: 54, status: 'Draft', color: 'from-cyan-500 to-sky-600', icon: '✍️', summary: 'Teknik membangun karakter kuat dan alur cerita dramatis di era media digital.' }
+    ];
+
+    const INITIAL_VIDEOS = [
+      { id: 'v1', title: 'Simulasi Gravitasi & Orbit Planet dalam 3 Menit', category: 'Sains & Fisika', duration: '03:45', views: '1.2K', progress: 75, author: 'Budi Santoso, M.Pd', uploaded: '2 hari lalu', gradient: 'from-indigo-600 via-purple-600 to-blue-700', icon: '🚀', completed: false, desc: 'Visualisasi langsung bagaimana massa bintang memengaruhi kelengkungan ruang-waktu.' },
+      { id: 'v2', title: 'Trik Cepat Menguasai Trigonometri Tanpa Menghafal', category: 'Matematika', duration: '06:18', views: '2.4K', progress: 100, author: 'Siti Rahmawati, S.Si', uploaded: '5 hari lalu', gradient: 'from-amber-500 via-orange-500 to-rose-500', icon: '🧮', completed: true, desc: 'Metode lingkaran satuan visual untuk memahami sin, cos, dan tan secara intuitif.' },
+      { id: 'v3', title: 'Fotosintesis Tingkat Molekuler: Cahaya Jadi Energi', category: 'Biologi', duration: '05:12', views: '980', progress: 35, author: 'Dr. Hendra Wijaya', uploaded: '1 minggu lalu', gradient: 'from-emerald-500 via-teal-500 to-cyan-600', icon: '🧬', completed: false, desc: 'Animasi reaksi terang dan siklus Calvin di dalam kloroplas daun.' },
+      { id: 'v4', title: 'Membangun Game Pertama dengan Logika Percabangan', category: 'Informatika', duration: '08:40', views: '3.1K', progress: 0, author: 'Rizky Pratama, M.Kom', uploaded: '2 minggu lalu', gradient: 'from-violet-600 via-fuchsia-600 to-pink-600', icon: '🕹️', completed: false, desc: 'Langkah demi langkah merancang sistem skor, nyawa, dan level permainan.' }
+    ];
+
+    const INITIAL_QUESTIONS = [
+      { id: 'q1', subject: 'Sains & Fisika', difficulty: 'Mudah', points: 100, text: 'Planet manakah di Tata Surya kita yang memiliki cincin paling mencolok dan tersusun dari es serta batuan?', options: ['Mars', 'Saturnus', 'Venus', 'Merkurius'], correct: 1, explanation: 'Saturnus terkenal dengan sistem cincin es dan debu kosmiknya yang luas dan terang.' },
+      { id: 'q2', subject: 'Matematika', difficulty: 'Sedang', points: 150, text: 'Jika 3x + 7 = 22, berapakah nilai dari 2x + 4?', options: ['10', '12', '14', '16'], correct: 2, explanation: '3x = 15 → x = 5. Maka 2(5) + 4 = 14.' },
+      { id: 'q3', subject: 'Informatika', difficulty: 'Mudah', points: 100, text: 'Struktur data manakah yang menggunakan prinsip LIFO (Last In, First Out)?', options: ['Queue', 'Stack', 'Array', 'Tree'], correct: 1, explanation: 'Stack (tumpukan) mengeluarkan elemen yang terakhir dimasukkan terlebih dahulu.' },
+      { id: 'q4', subject: 'Biologi', difficulty: 'Sedang', points: 150, text: 'Organel sel yang berfungsi sebagai pusat respirasi seluler dan penghasil energi ATP adalah...', options: ['Ribosom', 'Mitokondria', 'Lisosom', 'Badan Golgi'], correct: 1, explanation: 'Mitokondria dikenal sebagai powerhouse of the cell karena menghasilkan ATP.' },
+      { id: 'q5', subject: 'Sejarah', difficulty: 'Sulit', points: 200, text: 'Kerajaan maritim besar di Nusantara yang berpusat di Sumatera dan menguasai jalur perdagangan Selat Malaka pada abad ke-7 adalah...', options: ['Majapahit', 'Sriwijaya', 'Singhasari', 'Tarumanegara'], correct: 1, explanation: 'Kerajaan Sriwijaya adalah kemaharajaan bahari yang mengendalikan Selat Malaka.' }
+    ];
+
+    const LEADERBOARD_PLAYERS = [
+      { rank: 1, name: 'Alya Putri', avatar: '🦄', level: 32, xp: 14850, streak: 28, badge: 'Grandmaster', movement: 'up', class: '10-A' },
+      { rank: 2, name: 'Rafa Pratama', avatar: '🐉', level: 30, xp: 13920, streak: 21, badge: 'Quiz Titan', movement: 'up', class: '10-A' },
+      { rank: 3, name: 'Kirana Dewi', avatar: '🐱‍🚀', level: 29, xp: 13410, streak: 19, badge: 'Speed Demon', movement: 'same', class: '10-B' },
+      { rank: 4, name: 'Dimas Anggara', avatar: '🤖', level: 27, xp: 12100, streak: 15, badge: 'Logic Master', movement: 'up', class: '10-A' },
+      { rank: 5, name: 'Nadia Safira', avatar: '🦊', level: 26, xp: 11680, streak: 12, badge: 'Scholar', movement: 'down', class: '10-C' },
+      { rank: 6, name: 'Zaki Mubarak', avatar: '🦖', level: 25, xp: 10940, streak: 9, badge: 'Explorer', movement: 'up', class: '10-B' },
+      { rank: 7, name: 'Tari Wulandari', avatar: '🐼', level: 24, xp: 10250, streak: 14, badge: 'Consistent', movement: 'same', class: '10-A' }
+    ];
+
+    // -----------------------------------------------------------------------
+    // 3. CENTRAL APPLICATION STATE & NAVIGATION HISTORY ENGINE
+    // -----------------------------------------------------------------------
+    const app = {
+      role: 'teacher', // 'teacher' | 'student'
+      currentPage: 'landing',
+      history: ['landing'],
+      sidebarCollapsed: false,
+      darkMode: false,
+      userAvatar: '🦊',
+      userName: 'Budi Santoso, M.Pd',
+      userXP: 4820,
+      userLevel: 24,
+      userStreak: 14,
+
+      // Collections state
+      materials: [...INITIAL_MATERIALS],
+      materialFilter: 'Semua',
+      materialSearch: '',
+      materialView: 'grid',
+
+      videos: [...INITIAL_VIDEOS],
+      videoCategory: 'Semua',
+      activeVideo: INITIAL_VIDEOS[0],
+
+      questions: [...INITIAL_QUESTIONS],
+      selectedQuestionIds: ['q1', 'q2', 'q3', 'q4', 'q5'],
+      questionTab: 'bank', // 'bank' | 'import' | 'create'
+
+      // Game & Waiting Room State
+      selectedGameMode: GAME_MODES[0],
+      roomCode: '849201',
+      roomPlayers: [
+        { id: 'p1', name: 'Alya Putri', avatar: '🦄', ready: true, isYou: false },
+        { id: 'p2', name: 'Rafa Pratama', avatar: '🐉', ready: true, isYou: false },
+        { id: 'p3', name: 'Kirana Dewi', avatar: '🐱‍🚀', ready: true, isYou: false },
+        { id: 'p4', name: 'Dimas Anggara', avatar: '🤖', ready: true, isYou: false },
+        { id: 'p5', name: 'Nadia Safira', avatar: '🦊', ready: true, isYou: true },
+        { id: 'p6', name: 'Zaki Mubarak', avatar: '🦖', ready: true, isYou: false }
+      ],
+      roomChat: [
+        { sender: 'Alya Putri', avatar: '🦄', text: 'Siap-siap semuanya, hari ini aku incar posisi 1! 🔥' },
+        { sender: 'Rafa Pratama', avatar: '🐉', text: 'Gasken! Avatar naga baruku bawa hoki 😎' }
+      ],
+      gameInProgress: false,
+      gameState: {
+        qIndex: 0,
+        score: 0,
+        streak: 0,
+        correctCount: 0,
+        wrongCount: 0,
+        timeLeft: 20,
+        timerInterval: null,
+        answered: false,
+        answersLog: []
+      },
+
+      // Leaderboard filter
+      lbScope: 'Global',
+      lbPeriod: 'Mingguan',
+
+      // ---------------------------------------------------------------------
+      // CORE METHODS
+      // ---------------------------------------------------------------------
+      init() {
+        this.renderSidebar();
+      },
+
+      toggleDarkMode() {
+        sfx.play('click');
+        this.darkMode = !this.darkMode;
+        document.documentElement.classList.toggle('dark', this.darkMode);
+        const iconClass = this.darkMode ? 'ph-fill ph-sun text-amber-400 text-xl' : 'ph-fill ph-moon-stars text-xl';
+        const landingIcon = document.getElementById('landing-theme-icon');
+        if (landingIcon) landingIcon.className = iconClass;
+        this.toast(this.darkMode ? 'Mode Gelap Kosmik Aktif 🌙' : 'Mode Cerah Aktif ☀️', 'info');
+      },
+
+      toggleSound() {
+        sfx.enabled = !sfx.enabled;
+        const btn = document.getElementById('sound-toggle-btn');
+        if (btn) {
+          btn.innerHTML = sfx.enabled
+            ? '<i class="ph-fill ph-speaker-high text-lg"></i>'
+            : '<i class="ph-fill ph-speaker-slash text-lg text-slate-400"></i>';
+        }
+        if (sfx.enabled) sfx.play('click');
+        this.toast(sfx.enabled ? 'Efek Suara Aktif 🔊' : 'Efek Suara Dimatikan 🔇', 'info');
+      },
+
+      toggleSidebarCollapse() {
+        sfx.play('click');
+        this.sidebarCollapsed = !this.sidebarCollapsed;
+        const sidebar = document.getElementById('sidebar');
+        const icon = document.getElementById('collapse-icon');
+        const labels = document.querySelectorAll('.sidebar-label');
+        if (this.sidebarCollapsed) {
+          sidebar.classList.remove('w-72');
+          sidebar.classList.add('w-20');
+          icon.className = 'ph-bold ph-caret-right';
+          labels.forEach(el => el.classList.add('hidden'));
+        } else {
+          sidebar.classList.add('w-72');
+          sidebar.classList.remove('w-20');
+          icon.className = 'ph-bold ph-caret-left';
+          labels.forEach(el => el.classList.remove('hidden'));
+        }
+      },
+
+      toggleMobileSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobile-sidebar-overlay');
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+      },
+
+      enterApp(roleOrPage) {
+        sfx.play('click');
+        document.getElementById('landing-view').classList.add('hidden');
+        document.getElementById('app-shell').classList.remove('hidden');
+        if (roleOrPage === 'teacher' || roleOrPage === 'student') {
+          this.switchRole(roleOrPage);
+        } else {
+          this.navigate(roleOrPage);
+        }
+      },
+
+      joinRoomFromHero() {
+        const code = document.getElementById('hero-room-code').value.trim() || '849201';
+        this.roomCode = code.toUpperCase();
+        this.switchRole('student');
+        document.getElementById('landing-view').classList.add('hidden');
+        document.getElementById('app-shell').classList.remove('hidden');
+        this.navigate('waiting-room');
+        this.toast(`Berhasil masuk ke Live Room #${this.roomCode}!`, 'success');
+      },
+
+      switchRole(newRole) {
+        sfx.play('click');
+        this.role = newRole;
+        const tBtn = document.getElementById('role-btn-teacher');
+        const sBtn = document.getElementById('role-btn-student');
+        const badge = document.getElementById('sidebar-role-badge');
+        const uname = document.getElementById('sidebar-username');
+
+        if (newRole === 'teacher') {
+          this.userName = 'Budi Santoso, M.Pd';
+          tBtn.className = 'py-1.5 rounded-lg bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs transition-all';
+          sBtn.className = 'py-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white transition-all';
+          badge.textContent = 'GURU PRO';
+        } else {
+          this.userName = 'Nadia Safira';
+          sBtn.className = 'py-1.5 rounded-lg bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-300 shadow-xs transition-all';
+          tBtn.className = 'py-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white transition-all';
+          badge.textContent = 'SISWA ELITE';
+        }
+        uname.textContent = this.userName;
+        this.renderSidebar();
+        this.navigate(newRole === 'teacher' ? 'teacher' : 'student');
+      },
+
+      navigate(page, pushHistory = true) {
+        // Guard against accidental leave during active Live Game
+        if (this.gameInProgress && page !== 'game-arena') {
+          this.showConfirmModal(
+            'Tinggalkan Permainan Aktif?',
+            'Progres dan streak skor pada sesi live game saat ini akan terhenti jika kamu keluar sekarang.',
+            () => {
+              this.gameInProgress = false;
+              clearInterval(this.gameState.timerInterval);
+              this.navigate(page, pushHistory);
+            }
+          );
+          return;
+        }
+
+        // Always ensure any stray arena timer is cleared when leaving game-arena
+        if (page !== 'game-arena' && this.gameState.timerInterval) {
+          clearInterval(this.gameState.timerInterval);
+          this.gameState.timerInterval = null;
+        }
+
+        sfx.play('click');
+        if (page === 'landing') {
+          document.getElementById('app-shell').classList.add('hidden');
+          document.getElementById('landing-view').classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        if (pushHistory && this.currentPage !== page) {
+          this.history.push(page);
+        }
+        this.currentPage = page;
+
+        // Close mobile sidebar if open
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+        document.getElementById('mobile-sidebar-overlay').classList.add('hidden');
+
+        this.renderSidebar();
+        this.updateBreadcrumb(page);
+        this.renderPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+
+      goBack() {
+        sfx.play('click');
+        if (this.gameInProgress) {
+          this.navigate(this.role === 'teacher' ? 'teacher' : 'student');
+          return;
+        }
+        if (this.history.length > 1) {
+          this.history.pop();
+          const prev = this.history[this.history.length - 1];
+          this.navigate(prev, false);
+        } else {
+          this.navigate('landing', false);
+        }
+      },
+
+      updateBreadcrumb(page) {
+        const titles = {
+          'teacher': 'Dashboard Guru',
+          'student': 'Dunia Belajar Siswa',
+          'materials': 'Material Library & Studio',
+          'videos': 'Video Streaming Edukasi',
+          'questions': 'Question Bank & Import',
+          'game-creator': 'Game Creator Studio',
+          'waiting-room': 'Live Lobby & Avatar Selection',
+          'game-arena': 'Live Game Arena',
+          'leaderboard': 'Hall of Champions',
+          'results': 'Hasil & Analitik Performa',
+          'profile': 'Profil & Achievement Center'
+        };
+        const bc = document.getElementById('top-breadcrumb');
+        if (bc) {
+          bc.innerHTML = `
+            <span class="cursor-pointer hover:text-indigo-500" onclick="app.navigate('landing')">EDUVORA</span>
+            <i class="ph-bold ph-caret-right text-[10px]"></i>
+            <span class="capitalize">${this.role === 'teacher' ? 'Pengajar' : 'Siswa'}</span>
+            <i class="ph-bold ph-caret-right text-[10px]"></i>
+            <span class="text-indigo-600 dark:text-indigo-400 font-bold">${titles[page] || page}</span>
+          `;
+        }
+      },
+
+      renderSidebar() {
+        const navItems = [
+          { id: this.role === 'teacher' ? 'teacher' : 'student', label: this.role === 'teacher' ? 'Dashboard Guru' : 'Dashboard Siswa', icon: 'ph-squares-four', color: 'text-indigo-500', badge: null },
+          { id: 'materials', label: 'Materi Belajar', icon: 'ph-books', color: 'text-sky-500', badge: this.materials.length },
+          { id: 'videos', label: 'Video Edukasi', icon: 'ph-play-circle', color: 'text-rose-500', badge: 'HD' },
+          { id: 'questions', label: 'Question Bank', icon: 'ph-exam', color: 'text-amber-500', badge: this.questions.length },
+          { id: 'game-creator', label: 'Game Studio', icon: 'ph-game-controller', color: 'text-emerald-500', badge: '10' },
+          { id: 'waiting-room', label: 'Live Waiting Room', icon: 'ph-users-three', color: 'text-purple-500', badge: 'LIVE' },
+          { id: 'leaderboard', label: 'Hall of Champions', icon: 'ph-trophy', color: 'text-yellow-500', badge: null },
+          { id: 'results', label: 'Hasil & Analitik', icon: 'ph-chart-pie-slice', color: 'text-cyan-500', badge: null },
+          { id: 'profile', label: 'Profil & Badges', icon: 'ph-medal', color: 'text-fuchsia-500', badge: 'Lv.' + this.userLevel }
+        ];
+
+        const navEl = document.getElementById('sidebar-nav');
+        if (!navEl) return;
+
+        navEl.innerHTML = navItems.map(item => {
+          const active = this.currentPage === item.id;
+          return `
+            <button onclick="app.navigate('${item.id}')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-2xl font-bold text-xs transition-all group ${
+              active
+                ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/25'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-indigo-50/80 dark:hover:bg-slate-800/80'
+            }">
+              <div class="flex items-center gap-3 min-w-0">
+                <i class="ph-fill ${item.icon} text-xl shrink-0 ${active ? 'text-amber-300' : item.color} group-hover:scale-110 transition-transform"></i>
+                <span class="sidebar-label truncate ${this.sidebarCollapsed ? 'hidden' : ''}">${item.label}</span>
+              </div>
+              ${item.badge ? `
+                <span class="sidebar-label ${this.sidebarCollapsed ? 'hidden' : ''} px-2 py-0.5 rounded-lg text-[10px] font-extrabold ${
+                  active ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                }">${item.badge}</span>
+              ` : ''}
+            </button>
+          `;
+        }).join('');
+      },
+
+      // ---------------------------------------------------------------------
+      // TOAST & MODAL UTILITIES (ZERO NATIVE ALERT/CONFIRM)
+      // ---------------------------------------------------------------------
+      toast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const styles = {
+          success: 'from-emerald-500 to-teal-600 border-emerald-300 icon:ph-check-circle',
+          info: 'from-indigo-500 to-violet-600 border-indigo-300 icon:ph-info',
+          warning: 'from-amber-500 to-orange-600 border-amber-300 icon:ph-warning-circle',
+          error: 'from-rose-500 to-red-600 border-rose-300 icon:ph-x-circle'
+        };
+        const cfg = styles[type] || styles.info;
+        const iconName = cfg.split('icon:')[1];
+        const bgGrad = cfg.split(' icon:')[0];
+
+        const el = document.createElement('div');
+        el.className = `pointer-events-auto bg-gradient-to-r ${bgGrad} text-white px-4 py-3 rounded-2xl shadow-xl border-2 flex items-center gap-3 transform translate-x-8 opacity-0 transition-all duration-300`;
+        el.innerHTML = `
+          <i class="ph-fill ${iconName} text-2xl shrink-0"></i>
+          <div class="text-xs font-bold leading-snug flex-1">${message}</div>
+        `;
+        container.appendChild(el);
+        requestAnimationFrame(() => {
+          el.classList.remove('translate-x-8', 'opacity-0');
+        });
+        setTimeout(() => {
+          el.classList.add('translate-x-8', 'opacity-0');
+          setTimeout(() => el.remove(), 300);
+        }, 3200);
+      },
+
+      openModal(htmlContent) {
+        const backdrop = document.getElementById('modal-backdrop');
+        const content = document.getElementById('modal-content');
+        content.innerHTML = htmlContent;
+        backdrop.classList.remove('hidden');
+        backdrop.classList.add('flex');
+        requestAnimationFrame(() => {
+          content.classList.remove('scale-95', 'opacity-0');
+          content.classList.add('scale-100', 'opacity-100');
+        });
+      },
+
+      closeModal() {
+        const backdrop = document.getElementById('modal-backdrop');
+        const content = document.getElementById('modal-content');
+        content.classList.add('scale-95', 'opacity-0');
+        content.classList.remove('scale-100', 'opacity-100');
+        setTimeout(() => {
+          backdrop.classList.add('hidden');
+          backdrop.classList.remove('flex');
+        }, 180);
+      },
+
+      showConfirmModal(title, desc, onConfirm) {
+        this.openModal(`
+          <div class="p-6 sm:p-8 text-center">
+            <div class="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-950 text-amber-500 flex items-center justify-center text-4xl mx-auto mb-4">⚠️</div>
+            <h3 class="font-display text-2xl font-bold mb-2">${title}</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">${desc}</p>
+            <div class="flex items-center justify-center gap-3">
+              <button onclick="app.closeModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-sm">Batal</button>
+              <button id="modal-confirm-action" class="btn-3d px-6 py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm shadow-[0_4px_0_#9f1239]">Ya, Lanjutkan</button>
+            </div>
+          </div>
+        `);
+        document.getElementById('modal-confirm-action').onclick = () => {
+          this.closeModal();
+          onConfirm();
+        };
+      },
+
+      showNotificationsModal() {
+        sfx.play('click');
+        this.openModal(`
+          <div class="p-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+              <h3 class="font-display text-xl font-bold flex items-center gap-2">🔔 Pusat Aktivitas & Notifikasi</h3>
+              <button onclick="app.closeModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-start gap-3">
+                <span class="text-2xl">🏆</span>
+                <div>
+                  <div class="font-bold text-xs text-emerald-800 dark:text-emerald-300">Pencapaian Baru Terbuka!</div>
+                  <div class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Kelas 10-A mencapai 94% ketuntasan kuis Astrofisika minggu ini.</div>
+                </div>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 flex items-start gap-3">
+                <span class="text-2xl">🎮</span>
+                <div>
+                  <div class="font-bold text-xs text-indigo-800 dark:text-indigo-300">Live Arena Siap Dimulai</div>
+                  <div class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">6 siswa telah bergabung ke Room #${this.roomCode} dengan avatar pilihan mereka.</div>
+                </div>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-start gap-3">
+                <span class="text-2xl">📥</span>
+                <div>
+                  <div class="font-bold text-xs text-amber-800 dark:text-amber-300">Import Bank Soal Tervalidasi</div>
+                  <div class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">15 soal baru berhasil diparsing tanpa error dan siap digunakan.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `);
+      },
+
+      // ---------------------------------------------------------------------
+      // PAGE ROUTER DISPATCHER
+      // ---------------------------------------------------------------------
+      renderPage(page) {
+        const container = document.getElementById('page-container');
+        switch (page) {
+          case 'teacher': container.innerHTML = this.views.teacherDashboard(); break;
+          case 'student': container.innerHTML = this.views.studentDashboard(); break;
+          case 'materials': container.innerHTML = this.views.materialsPage(); break;
+          case 'videos': container.innerHTML = this.views.videosPage(); break;
+          case 'questions': container.innerHTML = this.views.questionsPage(); break;
+          case 'game-creator': container.innerHTML = this.views.gameCreatorPage(); break;
+          case 'waiting-room': container.innerHTML = this.views.waitingRoomPage(); break;
+          case 'game-arena': container.innerHTML = this.views.gameArenaPage(); this.startGameQuestion(); break;
+          case 'leaderboard': container.innerHTML = this.views.leaderboardPage(); break;
+          case 'results': container.innerHTML = this.views.resultsPage(); break;
+          case 'profile': container.innerHTML = this.views.profilePage(); break;
+          default: container.innerHTML = this.views.teacherDashboard();
+        }
+      },
+
+      // =====================================================================
+      // ALL 11 COMPLETE, RICH VISUAL & INTERACTIVE VIEWS
+      // =====================================================================
+      views: {
+        // -------------------------------------------------------------------
+        // 4. EDITORIAL GAMIFIED TEACHER DASHBOARD
+        // -------------------------------------------------------------------
+        teacherDashboard() {
+          const stats = [
+            { label: 'Total Siswa Aktif', val: '428', delta: '+14%', icon: '👨‍🎓', bg: 'from-indigo-500 to-blue-600', spark: [40, 55, 50, 70, 82, 95] },
+            { label: 'Kelas Terdaftar', val: '12', delta: '+2 Baru', icon: '🏫', bg: 'from-violet-500 to-purple-600', spark: [60, 60, 75, 75, 90, 100] },
+            { label: 'Materi Interaktif', val: app.materials.length, delta: '+5 Minggu ini', icon: '📚', bg: 'from-sky-500 to-cyan-600', spark: [30, 45, 60, 70, 85, 92] },
+            { label: 'Video Edukasi', val: app.videos.length, delta: '98% HD', icon: '🎬', bg: 'from-rose-500 to-pink-600', spark: [25, 40, 55, 68, 80, 90] },
+            { label: 'Bank Soal Aktif', val: app.questions.length * 24, delta: 'Tervalidasi', icon: '🧠', bg: 'from-amber-500 to-orange-600', spark: [50, 62, 74, 81, 88, 96] },
+            { label: 'Sesi Game Live', val: '64', delta: '+28%', icon: '🎮', bg: 'from-emerald-500 to-teal-600', spark: [35, 50, 65, 80, 92, 100] },
+            { label: 'Rata-Rata Nilai', val: '87.4', delta: '+4.2 pts', icon: '🎯', bg: 'from-fuchsia-500 to-purple-600', spark: [72, 76, 80, 83, 85, 87] },
+            { label: 'Ketuntasan Tugas', val: '93%', delta: 'Sangat Baik', icon: '🏆', bg: 'from-teal-500 to-emerald-600', spark: [78, 82, 85, 89, 91, 93] }
+          ];
+
+          return `
+            <div class="space-y-6">
+              <!-- Editorial Hero Greeting Banner with Character Illustration -->
+              <div class="relative rounded-[2rem] bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-6 sm:p-8 text-white shadow-xl overflow-hidden">
+                <div class="absolute right-0 bottom-0 opacity-20 text-[150px] leading-none pointer-events-none select-none">🎓</div>
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  <div class="space-y-2 max-w-2xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-xs text-xs font-bold text-amber-200">
+                      <span>📅 Rabu, 18 November 2026</span>
+                      <span>•</span>
+                      <span>Semester Ganjil Aktif</span>
+                    </div>
+                    <h1 class="font-display text-2xl sm:text-4xl font-bold leading-tight">
+                      Selamat Datang Kembali, Pak Budi! 👋
+                    </h1>
+                    <p class="text-sm sm:text-base text-indigo-100">
+                      Antusiasme belajar siswa naik <strong>24% minggu ini</strong>! Ada <strong>3 tugas menunggu ulasan</strong> dan <strong>Room #${app.roomCode}</strong> siap dimainkan.
+                    </p>
+                    <div class="pt-3 flex flex-wrap gap-3">
+                      <button onclick="app.navigate('game-creator')" class="btn-3d px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-[0_4px_0_#b45309] flex items-center gap-2">
+                        <i class="ph-fill ph-game-controller text-lg"></i> Luncurkan Live Game
+                      </button>
+                      <button onclick="app.navigate('materials')" class="btn-3d px-5 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-xs text-white font-bold text-xs border border-white/30 flex items-center gap-2">
+                        <i class="ph-bold ph-upload-simple text-base"></i> Unggah Materi Baru
+                      </button>
+                      <button onclick="app.navigate('questions')" class="btn-3d px-5 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-xs text-white font-bold text-xs border border-white/30 flex items-center gap-2">
+                        <i class="ph-bold ph-file-csv text-base"></i> Import Soal
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Illustrated Teacher & Mascot Card -->
+                  <div class="bg-white/15 backdrop-blur-md border border-white/25 rounded-3xl p-4 flex items-center gap-4 shrink-0">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-300 text-4xl flex items-center justify-center shadow-inner animate-float">🦉</div>
+                    <div>
+                      <div class="text-xs font-extrabold uppercase tracking-wider text-amber-200">Asisten Eduvora</div>
+                      <div class="font-display font-bold text-base">Kelas 10-A Paling Aktif!</div>
+                      <div class="text-xs text-indigo-100 mt-0.5">Rata-rata akurasi kuis: <strong>91.2%</strong></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 8 Varied Interactive Stat Cards with Mini Sparklines -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                ${stats.map(s => `
+                  <div class="group bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-slate-100 dark:border-slate-800 hover:border-indigo-400 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1">
+                    <div class="flex items-start justify-between">
+                      <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${s.bg} text-white text-2xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                        ${s.icon}
+                      </div>
+                      <span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+                        ${s.delta}
+                      </span>
+                    </div>
+                    <div class="mt-4 flex items-end justify-between">
+                      <div>
+                        <div class="font-display text-3xl font-bold text-slate-900 dark:text-white">${s.val}</div>
+                        <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">${s.label}</div>
+                      </div>
+                      <!-- Mini Bar Sparkline -->
+                      <div class="flex items-end gap-1 h-10">
+                        ${s.spark.map(h => `<div class="w-1.5 rounded-full bg-indigo-500/30 group-hover:bg-indigo-500 transition-all" style="height:${h}%"></div>`).join('')}
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Editorial Asymmetric Grid: Performance Chart + Class Progress + Quick Studio -->
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Weekly Learning Activity Chart (7 cols) -->
+                <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 border-slate-100 dark:border-slate-800 shadow-sm">
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+                    <div>
+                      <h3 class="font-display text-xl font-bold">Aktivitas Belajar & Partisipasi Mingguan</h3>
+                      <p class="text-xs text-slate-500">Perbandingan penyelesaian materi vs skor live quiz siswa</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs font-bold">
+                      <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-indigo-600"></span> Live Quiz</span>
+                      <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-400"></span> Materi & Video</span>
+                    </div>
+                  </div>
+
+                  <!-- Interactive Visual Bar Chart -->
+                  <div class="grid grid-cols-7 gap-3 items-end h-52 pt-6 px-2 border-b border-slate-100 dark:border-slate-800">
+                    ${[
+                      { day: 'Sen', q: 68, m: 54 },
+                      { day: 'Sel', q: 82, m: 70 },
+                      { day: 'Rab', q: 94, m: 85 },
+                      { day: 'Kam', q: 76, m: 65 },
+                      { day: 'Jum', q: 90, m: 88 },
+                      { day: 'Sab', q: 60, m: 72 },
+                      { day: 'Min', q: 85, m: 79 }
+                    ].map(d => `
+                      <div class="flex flex-col items-center gap-2 h-full justify-end group">
+                        <div class="w-full flex items-end justify-center gap-1.5 h-40">
+                          <div title="Live Quiz: ${d.q}%" class="w-3.5 sm:w-5 rounded-t-xl bg-gradient-to-t from-indigo-600 to-violet-500 group-hover:brightness-110 transition-all" style="height:${d.q}%"></div>
+                          <div title="Materi: ${d.m}%" class="w-3.5 sm:w-5 rounded-t-xl bg-gradient-to-t from-amber-500 to-yellow-300 group-hover:brightness-110 transition-all" style="height:${d.m}%"></div>
+                        </div>
+                        <span class="text-xs font-bold text-slate-500">${d.day}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+
+                  <!-- Class Performance Pills -->
+                  <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="p-3 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 flex items-center justify-between">
+                      <div>
+                        <div class="text-xs font-bold text-indigo-900 dark:text-indigo-200">Kelas 10-A</div>
+                        <div class="text-[11px] text-indigo-600 dark:text-indigo-400">36 Siswa • Rata-rata 91.2</div>
+                      </div>
+                      <span class="text-xl">🥇</span>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 flex items-center justify-between">
+                      <div>
+                        <div class="text-xs font-bold text-emerald-900 dark:text-emerald-200">Kelas 10-B</div>
+                        <div class="text-[11px] text-emerald-600 dark:text-emerald-400">35 Siswa • Rata-rata 86.8</div>
+                      </div>
+                      <span class="text-xl">🥈</span>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 flex items-center justify-between">
+                      <div>
+                        <div class="text-xs font-bold text-amber-900 dark:text-amber-200">Kelas 10-C</div>
+                        <div class="text-[11px] text-amber-600 dark:text-amber-400">34 Siswa • Rata-rata 84.1</div>
+                      </div>
+                      <span class="text-xl">🥉</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Column: Top Performing Students & Students Needing Attention (5 cols) -->
+                <div class="lg:col-span-5 space-y-6">
+                  <!-- Top Performing Students -->
+                  <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 border-slate-100 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                      <h3 class="font-display text-lg font-bold flex items-center gap-2">🌟 Siswa Berprestasi</h3>
+                      <button onclick="app.navigate('leaderboard')" class="text-xs font-bold text-indigo-600 hover:underline">Lihat Podium →</button>
+                    </div>
+                    <div class="space-y-3">
+                      ${LEADERBOARD_PLAYERS.slice(0, 3).map(p => `
+                        <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/70 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors">
+                          <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-300 to-orange-500 text-xl flex items-center justify-center shadow-xs">${p.avatar}</div>
+                            <div>
+                              <div class="font-bold text-xs">${p.name} <span class="text-[10px] text-slate-400">(${p.class})</span></div>
+                              <div class="text-[11px] text-emerald-600 font-semibold">🔥 Streak ${p.streak} hari • ${p.badge}</div>
+                            </div>
+                          </div>
+                          <div class="font-display font-bold text-sm text-indigo-600 dark:text-indigo-400">${p.xp.toLocaleString()} XP</div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+
+                  <!-- Students Needing Attention -->
+                  <div class="bg-gradient-to-br from-rose-50 to-amber-50 dark:from-rose-950/30 dark:to-amber-950/30 rounded-3xl p-5 border-2 border-rose-200/70 dark:border-rose-900/50">
+                    <div class="flex items-center justify-between mb-3">
+                      <h3 class="font-display text-base font-bold text-rose-800 dark:text-rose-300 flex items-center gap-2">
+                        <i class="ph-fill ph-heart-half text-rose-500"></i> Perlu Pendampingan Khusus
+                      </h3>
+                      <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500 text-white">2 Siswa</span>
+                    </div>
+                    <div class="space-y-2.5 text-xs">
+                      <div class="bg-white/90 dark:bg-slate-900/90 p-3 rounded-2xl flex items-center justify-between">
+                        <div>
+                          <div class="font-bold">Bagas Permana (10-C)</div>
+                          <div class="text-[11px] text-slate-500">Belum menyelesaikan Kuis Aljabar • Akurasi 52%</div>
+                        </div>
+                        <button onclick="app.toast('Pesan motivasi & latihan remedial dikirim ke Bagas!', 'success')" class="px-3 py-1.5 rounded-xl bg-rose-500 text-white font-bold text-[11px] hover:bg-rose-600">
+                          Kirim Remedial
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
+        // -------------------------------------------------------------------
+        // 5. GAMIFIED STUDENT DASHBOARD ("WORLD OF ADVENTURE")
+        // -------------------------------------------------------------------
+        studentDashboard() {
+          return `
+            <div class="space-y-6">
+              <!-- Student Adventure Welcome Banner -->
+              <div class="relative rounded-[2rem] bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-6 sm:p-8 text-white shadow-xl overflow-hidden">
+                <div class="absolute right-6 top-4 text-6xl opacity-25 animate-spin-slow">✨</div>
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  <div class="flex items-center gap-4 sm:gap-6">
+                    <div onclick="app.navigate('profile')" class="cursor-pointer w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-white/25 backdrop-blur-md border-4 border-white flex items-center justify-center text-5xl sm:text-6xl shadow-xl hover:scale-105 transition-transform">
+                      ${app.userAvatar}
+                    </div>
+                    <div>
+                      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/25 text-xs font-extrabold mb-2">
+                        <span>🔥 ${app.userStreak} HARI STREAK</span>
+                        <span>•</span>
+                        <span>RANK #5 KELAS</span>
+                      </div>
+                      <h1 class="font-display text-2xl sm:text-4xl font-bold">Halo, Petualang Nadia! 🚀</h1>
+                      <p class="text-xs sm:text-sm text-amber-50 mt-1 max-w-xl">
+                        "Luar biasa! Tinggal <strong>180 XP</strong> lagi untuk naik ke <strong>Level 25 (Master Explorer)</strong> dan membuka Peti Harta Karun Epik!"
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Quick Join Live Arena Card -->
+                  <div class="bg-slate-950/25 backdrop-blur-md border border-white/30 rounded-3xl p-4 sm:w-80">
+                    <div class="text-xs font-extrabold uppercase tracking-wider text-amber-200 mb-2 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Room Sedang Berlangsung!
+                    </div>
+                    <div class="flex gap-2">
+                      <input id="student-room-input" type="text" value="${app.roomCode}" class="w-full bg-white text-slate-900 font-display font-bold text-center text-lg tracking-widest rounded-xl px-3 py-2 focus:outline-none" />
+                      <button onclick="app.navigate('waiting-room')" class="btn-3d px-4 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-xs shadow-[0_4px_0_#047857] shrink-0">
+                        MASUK!
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Daily Missions, Reward Chest & Trophy Showcase -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Daily Challenge Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 border-indigo-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-3">
+                      <span class="px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 font-extrabold text-xs">⚡ TANTANGAN HARIAN</span>
+                      <span class="font-display font-bold text-amber-500 text-sm">+250 XP</span>
+                    </div>
+                    <h3 class="font-display text-lg font-bold">Selesaikan 1 Quick Quiz Tanpa Salah</h3>
+                    <p class="text-xs text-slate-500 mt-1">Uji ketepatanmu pada topik Sains & Astrofisika hari ini.</p>
+                  </div>
+                  <div class="mt-5">
+                    <div class="flex justify-between text-xs font-bold mb-1.5">
+                      <span>Progres Misi</span>
+                      <span class="text-indigo-600">4 / 5 Soal</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
+                      <div class="h-full w-4/5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
+                    </div>
+                    <button onclick="app.navigate('waiting-room')" class="btn-3d w-full py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-[0_4px_0_#3730a3]">
+                      Lanjutkan Tantangan →
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Interactive Reward Chest -->
+                <div class="bg-gradient-to-br from-violet-600 to-indigo-800 text-white rounded-3xl p-6 shadow-lg flex flex-col items-center justify-between text-center relative overflow-hidden">
+                  <div class="text-xs font-extrabold uppercase tracking-widest text-amber-300">Peti Harta Karun Mingguan</div>
+                  <div onclick="app.claimRewardChest()" class="cursor-pointer my-3 text-6xl animate-bounce-slow hover:scale-110 transition-transform select-none" title="Klik untuk buka peti!">
+                    🎁
+                  </div>
+                  <div>
+                    <h3 class="font-display text-lg font-bold">Mystery Chest Siap Dibuka!</h3>
+                    <p class="text-xs text-indigo-200 mt-0.5">Berisi koin XP, avatar eksklusif & badge langka</p>
+                  </div>
+                  <button onclick="app.claimRewardChest()" class="btn-3d mt-4 w-full py-2.5 rounded-xl bg-amber-400 text-slate-950 font-extrabold text-xs shadow-[0_4px_0_#b45309]">
+                    ✨ Klaim Hadiah Sekarang
+                  </button>
+                </div>
+
+                <!-- Trophy & Badge Collection Preview -->
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 border-amber-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-3">
+                      <h3 class="font-display text-lg font-bold">🏆 Koleksi Trofi</h3>
+                      <button onclick="app.navigate('profile')" class="text-xs font-bold text-indigo-600 hover:underline">Semua (18)</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2.5 mt-2">
+                      <div class="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 text-center">
+                        <div class="text-3xl mb-1">👑</div>
+                        <div class="text-[10px] font-extrabold text-amber-700 dark:text-amber-300">Juara 1 Kuis</div>
+                      </div>
+                      <div class="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 text-center">
+                        <div class="text-3xl mb-1">⚡</div>
+                        <div class="text-[10px] font-extrabold text-purple-700 dark:text-purple-300">Kilat 10x</div>
+                      </div>
+                      <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-center">
+                        <div class="text-3xl mb-1">📚</div>
+                        <div class="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-300">Kutu Buku</div>
+                      </div>
+                    </div>
+                  </div>
+                  <button onclick="app.navigate('leaderboard')" class="btn-3d mt-4 w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-slate-700 font-bold text-xs">
+                    Lihat Hall of Champions 🏆
+                  </button>
+                </div>
+              </div>
+
+              <!-- Continue Watching & Recommended Materials -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 border-slate-100 dark:border-slate-800">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-display text-lg font-bold">🎬 Lanjutkan Menonton</h3>
+                    <button onclick="app.navigate('videos')" class="text-xs font-bold text-rose-500 hover:underline">Semua Video →</button>
+                  </div>
+                  <div class="space-y-3">
+                    ${app.videos.slice(0, 2).map(v => `
+                      <div onclick="app.openVideoPlayer('${v.id}')" class="cursor-pointer p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/70 hover:bg-rose-50/60 dark:hover:bg-slate-800 flex items-center gap-4 transition-all group">
+                        <div class="w-20 h-14 rounded-xl bg-gradient-to-br ${v.gradient} text-white text-2xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          ${v.icon}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="font-bold text-xs truncate">${v.title}</div>
+                          <div class="text-[11px] text-slate-400 mt-0.5">${v.category} • ${v.duration}</div>
+                          <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-2 overflow-hidden">
+                            <div class="h-full bg-rose-500 rounded-full" style="width:${v.progress || 45}%"></div>
+                          </div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 border-slate-100 dark:border-slate-800">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-display text-lg font-bold">📖 Materi Rekomendasi Untukmu</h3>
+                    <button onclick="app.navigate('materials')" class="text-xs font-bold text-indigo-500 hover:underline">Perpustakaan →</button>
+                  </div>
+                  <div class="space-y-3">
+                    ${app.materials.slice(0, 2).map(m => `
+                      <div onclick="app.openMaterialDetail('${m.id}')" class="cursor-pointer p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/70 hover:bg-indigo-50/60 dark:hover:bg-slate-800 flex items-center gap-4 transition-all group">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${m.color} text-white text-2xl flex items-center justify-center shrink-0 group-hover:rotate-6 transition-transform">
+                          ${m.icon}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="font-bold text-xs truncate">${m.title}</div>
+                          <div class="text-[11px] text-slate-400 mt-0.5">${m.category} • ${m.type} (${m.size})</div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 font-bold text-[11px]">Buka</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
+        // -------------------------------------------------------------------
+        // 6. MATERIAL MANAGEMENT (VISUAL COVERS, UPLOAD & REAL FILE EXPORT)
+        // -------------------------------------------------------------------
+        materialsPage() {
+          const categories = ['Semua', 'Sains & Fisika', 'Matematika', 'Biologi', 'Sejarah', 'Informatika', 'Bahasa'];
+          const filtered = app.materials.filter(m => {
+            const matchCat = app.materialFilter === 'Semua' || m.category === app.materialFilter;
+            const matchSearch = m.title.toLowerCase().includes(app.materialSearch.toLowerCase());
+            return matchCat && matchSearch;
+          });
+
+          return `
+            <div class="space-y-6">
+              <!-- Top Header & Storage Usage Indicator -->
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-100 dark:border-slate-800 shadow-sm">
+                <div>
+                  <h1 class="font-display text-2xl sm:text-3xl font-bold flex items-center gap-2.5">
+                    <span class="text-3xl">📚</span> Perpustakaan Materi Interaktif
+                  </h1>
+                  <p class="text-xs sm:text-sm text-slate-500 mt-1">Kelola modul belajar visual, unggah dokumen baru, dan ekspor langsung ke format PDF, DOCX, atau HTML.</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-4">
+                  <!-- Cloud Storage Usage Pill -->
+                  <div class="bg-slate-50 dark:bg-slate-800 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-[190px]">
+                    <div class="flex justify-between text-[11px] font-bold mb-1">
+                      <span class="text-slate-500">Cloud Storage</span>
+                      <span class="text-indigo-600 dark:text-indigo-400">2.4 GB / 10 GB</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div class="h-full w-1/4 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  <button onclick="app.openUploadMaterialModal()" class="btn-3d px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-extrabold text-xs shadow-[0_4px_0_#3730a3] flex items-center gap-2">
+                    <i class="ph-bold ph-cloud-arrow-up text-lg"></i> Unggah Materi
+                  </button>
+                </div>
+              </div>
+
+              <!-- Search, Filter Chips & Grid/List Toggle -->
+              <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                  ${categories.map(cat => `
+                    <button onclick="app.materialFilter='${cat}'; app.renderPage('materials')" class="px-4 py-2 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
+                      app.materialFilter === cat
+                        ? 'bg-indigo-600 text-white shadow-md'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-indigo-400'
+                    }">
+                      ${cat}
+                    </button>
+                  `).join('')}
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 flex-1 md:w-64">
+                    <i class="ph-bold ph-magnifying-glass text-slate-400 mr-2"></i>
+                    <input type="text" value="${app.materialSearch}" oninput="app.materialSearch=this.value; app.renderPage('materials')" placeholder="Cari judul materi..." class="bg-transparent text-xs font-medium w-full focus:outline-none" />
+                  </div>
+                  <button onclick="app.materialView = app.materialView === 'grid' ? 'list' : 'grid'; app.renderPage('materials')" class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-600" title="Ganti Tampilan Grid/List">
+                    <i class="ph-bold ${app.materialView === 'grid' ? 'ph-list-dashes' : 'ph-squares-four'} text-lg"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Material Cover Cards Grid -->
+              ${filtered.length === 0 ? `
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+                  <div class="text-6xl mb-3">📭</div>
+                  <h3 class="font-display text-xl font-bold">Materi Tidak Ditemukan</h3>
+                  <p class="text-xs text-slate-500 mt-1">Coba ubah kata kunci pencarian atau unggah materi baru.</p>
+                </div>
+              ` : `
+                <div class="${app.materialView === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}">
+                  ${filtered.map(m => `
+                    <div class="group bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-100 dark:border-slate-800 hover:border-indigo-400 overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col justify-between">
+                      <div>
+                        <!-- Illustrated Color-Coded Cover Header -->
+                        <div onclick="app.openMaterialDetail('${m.id}')" class="cursor-pointer h-36 bg-gradient-to-br ${m.color} p-5 text-white relative overflow-hidden flex flex-col justify-between">
+                          <div class="absolute -right-3 -bottom-4 text-7xl opacity-25 group-hover:scale-110 group-hover:rotate-6 transition-transform">${m.icon}</div>
+                          <div class="flex items-center justify-between relative z-10">
+                            <span class="px-3 py-1 rounded-xl bg-white/20 backdrop-blur-xs text-[11px] font-extrabold">${m.category}</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-slate-950/30 text-[10px] font-extrabold tracking-wider">${m.type} • ${m.size}</span>
+                          </div>
+                          <div class="relative z-10 flex items-center gap-2">
+                            <span class="text-3xl">${m.icon}</span>
+                            <span class="text-[11px] font-bold bg-white/20 px-2.5 py-0.5 rounded-full">${m.status}</span>
+                          </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-5">
+                          <h3 onclick="app.openMaterialDetail('${m.id}')" class="cursor-pointer font-display text-lg font-bold leading-snug group-hover:text-indigo-600 transition-colors">${m.title}</h3>
+                          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">${m.summary}</p>
+                          
+                          <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-semibold">
+                            <span>👨‍🏫 ${m.author}</span>
+                            <span>👁️ ${m.views} • ⬇️ ${m.downloads}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Action Footer with Working Export & Detail -->
+                      <div class="px-5 pb-5 flex items-center gap-2">
+                        <button onclick="app.openMaterialDetail('${m.id}')" class="flex-1 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-600 text-indigo-600 dark:text-indigo-300 hover:text-white font-bold text-xs transition-colors">
+                          Pratinjau & Detail
+                        </button>
+                        <button onclick="app.exportMaterial('${m.id}', 'HTML')" title="Export HTML" class="px-3 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 hover:bg-emerald-500 hover:text-white font-bold text-xs transition-colors">
+                          HTML
+                        </button>
+                        <button onclick="app.exportMaterial('${m.id}', 'DOC')" title="Export DOCX" class="px-3 py-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 hover:bg-sky-500 hover:text-white font-bold text-xs transition-colors">
+                          DOCX
+                        </button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              `}
+            </div>
+          `;
+        },
+
+        // -------------------------------------------------------------------
+        // 7. VIDEO STREAMING LIBRARY (CUSTOM INTERACTIVE PLAYER & UPLOAD)
+        // -------------------------------------------------------------------
+        videosPage() {
+          const v = app.activeVideo || app.videos[0];
+          return `
+            <div class="space-y-6">
+              <!-- Top Banner & Upload Button -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-100 dark:border-slate-800">
+                <div>
+                  <h1 class="font-display text-2xl sm:text-3xl font-bold flex items-center gap-2">
+                    <span>🎬</span> Eduvora Stream Studio
+                  </h1>
+                  <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Platform video pembelajaran interaktif bebas iklan dengan pelacakan progres otomatis.</p>
+                </div>
+                <button onclick="app.openVideoUploadModal()" class="btn-3d px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-extrabold text-xs shadow-[0_4px_0_#9f1239] flex items-center gap-2 self-start sm:self-auto">
+                  <i class="ph-bold ph-video-camera text-lg"></i> Unggah Video Lokal
+                </button>
+              </div>
+
+              <!-- Featured Custom Video Player + Playlist Grid -->
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Interactive Simulated/HTML5 Video Stage (8 cols) -->
+                <div class="lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden shadow-lg">
+                  <div class="relative aspect-video bg-gradient-to-br ${v.gradient} flex flex-col items-center justify-center text-white p-6 overflow-hidden">
+                    ${v.blobUrl ? `
+                      <video src="${v.blobUrl}" controls class="w-full h-full object-contain rounded-2xl bg-black"></video>
+                    ` : `
+                      <div class="absolute inset-0 bg-black/20"></div>
+                      <div class="relative z-10 text-center space-y-3 max-w-lg">
+                        <div class="w-20 h-20 rounded-3xl bg-white/20 backdrop-blur-md text-5xl flex items-center justify-center mx-auto animate-float shadow-xl">
+                          ${v.icon}
+                        </div>
+                        <span class="inline-block px-3 py-1 rounded-full bg-black/30 text-[11px] font-extrabold uppercase tracking-wider">${v.category} • ${v.duration}</span>
+                        <h2 class="font-display text-xl sm:text-2xl font-bold">${v.title}</h2>
+                        <button onclick="app.simulateVideoPlay('${v.id}')" class="btn-3d px-6 py-3 rounded-2xl bg-white text-slate-900 font-extrabold text-xs shadow-lg inline-flex items-center gap-2 hover:scale-105 transition-transform">
+                          <i class="ph-fill ph-play text-rose-500 text-base"></i> Putar Simulasi Interaktif (+50 XP)
+                        </button>
+                      </div>
+                      <!-- Custom Video Scrubber Bar -->
+                      <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                        <div class="w-full h-1.5 bg-white/30 rounded-full overflow-hidden mb-2">
+                          <div id="video-progress-fill" class="h-full bg-rose-500 transition-all duration-500" style="width:${v.progress}%"></div>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] font-bold">
+                          <span>01:42 / ${v.duration}</span>
+                          <span>1080p HD • Subtitle ID Aktif</span>
+                        </div>
+                      </div>
+                    `}
+                  </div>
+
+                  <div class="p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 class="font-display text-xl font-bold">${v.title}</h3>
+                        <p class="text-xs text-slate-500 mt-1">${v.desc}</p>
+                      </div>
+                      ${v.completed ? `
+                        <span class="px-3.5 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs flex items-center gap-1.5">
+                          <i class="ph-fill ph-check-circle text-base"></i> Selesai Ditonton
+                        </span>
+                      ` : ''}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Up Next Playlist (4 cols) -->
+                <div class="lg:col-span-4 bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-slate-100 dark:border-slate-800 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-display text-lg font-bold">📑 Playlist Belajar</h3>
+                    <span class="text-xs font-bold text-slate-400">${app.videos.length} Video</span>
+                  </div>
+                  <div class="space-y-3">
+                    ${app.videos.map(item => `
+                      <div onclick="app.activeVideo = app.videos.find(x=>x.id==='${item.id}'); app.renderPage('videos')" class="cursor-pointer p-3 rounded-2xl border-2 transition-all flex items-center gap-3 ${
+                        item.id === v.id
+                          ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-950/30'
+                          : 'border-transparent bg-slate-50 dark:bg-slate-800/70 hover:border-slate-300'
+                      }">
+                        <div class="w-16 h-12 rounded-xl bg-gradient-to-br ${item.gradient} text-white text-2xl flex items-center justify-center shrink-0">
+                          ${item.icon}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <div class="font-bold text-xs truncate">${item.title}</div>
+                          <div class="text-[11px] text-slate-400 mt-0.5">${item.duration} • ${item.views}x ditonton</div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
+        // -------------------------------------------------------------------
+        // 8. QUESTION BANK & SMART CSV/JSON IMPORT WORKSPACE
+        // -------------------------------------------------------------------
+        questionsPage() {
+          return `
+            <div class="space-y-6">
+              <!-- Header & Mode Tabs -->
+              <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                  <h1 class="font-display text-2xl sm:text-3xl font-bold flex items-center gap-2">
+                    <span>🧠</span> Question Bank & Smart Importer
+                  </h1>
+                  <p class="text-xs sm:text-sm text-slate-500 mt-1">Kelola soal tervalidasi, buat pertanyaan manual, atau impor massal dan hubungkan langsung ke Live Game Room.</p>
+                </div>
+
+                <div class="flex flex-wrap gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl">
+                  <button onclick="app.questionTab='bank'; app.renderPage('questions')" class="px-4 py-2 rounded-xl font-bold text-xs transition-all ${app.questionTab==='bank' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs' : 'text-slate-500'}">
+                    📚 Koleksi Soal (${app.questions.length})
+                  </button>
+                  <button onclick="app.questionTab='create'; app.renderPage('questions')" class="px-4 py-2 rounded-xl font-bold text-xs transition-all ${app.questionTab==='create' ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-300 shadow-xs' : 'text-slate-500'}">
+                    ➕ Buat Manual
+                  </button>
+                  <button onclick="app.questionTab='import'; app.renderPage('questions')" class="px-4 py-2 rounded-xl font-bold text-xs transition-all ${app.questionTab==='import' ? 'bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-300 shadow-xs' : 'text-slate-500'}">
+                    📥 Import CSV / JSON
+                  </button>
+                </div>
+              </div>
+
+              <!-- Live Room Connection Summary Banner -->
+              <div class="bg-gradient-to-r from-indigo-600 to-violet-700 text-white rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">🔗</div>
+                  <div>
+                    <div class="font-bold text-sm">Terhubung ke Game Studio: ${app.selectedQuestionIds.length} Soal Dipilih</div>
+                    <div class="text-xs text-indigo-200">Total Poin Maksimal: <strong>${app.selectedQuestionIds.length * 150} XP</strong> • Estimasi Durasi: <strong>${Math.max(2, app.selectedQuestionIds.length)} Menit</strong></div>
+                  </div>
+                </div>
+                <button onclick="app.navigate('game-creator')" class="btn-3d px-5 py-2.5 rounded-xl bg-amber-400 text-slate-950 font-extrabold text-xs shadow-[0_4px_0_#b45309] shrink-0">
+                  Lanjut ke Game Studio →
+                </button>
+              </div>
+
+              ${app.questionTab === 'bank' ? `
+                <!-- Question Cards List with Selection Checkboxes -->
+                <div class="space-y-4">
+                  ${app.questions.map((q, idx) => {
+                    const checked = app.selectedQuestionIds.includes(q.id);
+                    return `
+                      <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 transition-all ${checked ? 'border-indigo-500 shadow-md' : 'border-slate-100 dark:border-slate-800'}">
+                        <div class="flex items-start justify-between gap-4">
+                          <div class="flex items-start gap-3.5">
+                            <input type="checkbox" ${checked ? 'checked' : ''} onchange="app.toggleQuestionSelect('${q.id}')" class="mt-1 w-5 h-5 rounded-lg accent-indigo-600 cursor-pointer" />
+                            <div>
+                              <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <span class="px-2.5 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 font-extrabold text-[11px]">#${idx + 1} • ${q.subject}</span>
+                                <span class="px-2.5 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 font-extrabold text-[11px]">${q.difficulty}</span>
+                                <span class="px-2.5 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-600 font-extrabold text-[11px]">+${q.points} Poin</span>
+                              </div>
+                              <h3 class="font-bold text-sm sm:text-base">${q.text}</h3>
+                              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                                ${q.options.map((opt, i) => `
+                                  <div class="px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 ${
+                                    i === q.correct
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+                                      : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                  }">
+                                    <span class="w-5 h-5 rounded-md bg-white dark:bg-slate-700 flex items-center justify-center font-extrabold text-[10px]">${String.fromCharCode(65+i)}</span>
+                                    <span>${opt}</span>
+                                    ${i === q.correct ? '<i class="ph-fill ph-check-circle ml-auto text-emerald-500"></i>' : ''}
+                                  </div>
+                                `).join('')}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              ` : app.questionTab === 'create' ? `
+                <!-- Manual Question Creator Form -->
+                <form onsubmit="app.saveNewQuestion(event)" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 border-slate-100 dark:border-slate-800 space-y-4 max-w-3xl">
+                  <h3 class="font-display text-xl font-bold">✍️ Tambah Pertanyaan Baru ke Bank Soal</h3>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs font-bold mb-1">Mata Pelajaran</label>
+                      <select id="nq-subject" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 text-xs font-bold">
+                        <option>Sains & Fisika</option>
+                        <option>Matematika</option>
+                        <option>Informatika</option>
+                        <option>Biologi</option>
+                        <option>Sejarah</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold mb-1">Tingkat Kesulitan</label>
+                      <select id="nq-diff" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 text-xs font-bold">
+                        <option>Mudah</option>
+                        <option>Sedang</option>
+                        <option>Sulit</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold mb-1">Teks Pertanyaan</label>
+                    <textarea id="nq-text" required rows="2" placeholder="Tuliskan pertanyaan yang jelas dan menarik..." class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 text-xs font-medium"></textarea>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input id="nq-opt0" required placeholder="Pilihan A" class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 text-xs" />
+                    <input id="nq-opt1" required placeholder="Pilihan B" class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 text-xs" />
+                    <input id="nq-opt2" required placeholder="Pilihan C" class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 text-xs" />
+                    <input id="nq-opt3" required placeholder="Pilihan D" class="rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 text-xs" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold mb-1">Jawaban Benar</label>
+                    <select id="nq-correct" class="w-full sm:w-48 rounded-xl bg-emerald-50 dark:bg-emerald-950 border border-emerald-300 p-2.5 text-xs font-bold text-emerald-700">
+                      <option value="0">Pilihan A</option>
+                      <option value="1">Pilihan B</option>
+                      <option value="2">Pilihan C</option>
+                      <option value="3">Pilihan D</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn-3d px-6 py-3 rounded-xl bg-emerald-600 text-white font-extrabold text-xs shadow-[0_4px_0_#047857]">
+                    Simpan ke Bank Soal & Pilih
+                  </button>
+                </form>
+              ` : `
+                <!-- Drag-and-Drop Smart CSV/JSON Import Workspace -->
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 border-2 border-dashed border-indigo-300 dark:border-indigo-800 text-center space-y-4">
+                  <div class="w-20 h-20 rounded-3xl bg-indigo-50 dark:bg-indigo-950 text-5xl flex items-center justify-center mx-auto animate-bounce-slow">📂</div>
+                  <h3 class="font-display text-2xl font-bold">Impor Massal Soal (CSV / JSON)</h3>
+                  <p class="text-xs text-slate-500 max-w-md mx-auto">Unggah file soal atau gunakan simulasi paket soal tervalidasi otomatis untuk langsung ditambahkan ke Live Room.</p>
+                  <div class="flex flex-wrap justify-center gap-3 pt-2">
+                    <button onclick="app.downloadTemplateCSV()" class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-xs flex items-center gap-2">
+                      <i class="ph-bold ph-download-simple"></i> Unduh Template CSV
+                    </button>
+                    <button onclick="app.simulateBulkImport()" class="btn-3d px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-extrabold text-xs shadow-[0_4px_0_#3730a3] flex items-center gap-2">
+                      <i class="ph-bold ph-magic-wand"></i> Simulasi Import 3 Soal Baru
+                    </button>
+                  </div>
+                </div>
+              `}
+            </div>
+          `;
+        },
+
+        // -------------------------------------------------------------------
+        // 9. GAME CREATOR STUDIO (10 DISTINCT INTERACTIVE GAME MODES)
+        // -------------------------------------------------------------------
+        gameCreatorPage() {
+          return `
+            <div class="space-y-6">
+              <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                  <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">EDUVORA GAME STUDIO</span>
+                  <h1 class="font-display text-2xl sm:text-3xl font-bold">Pilih Mode Permainan Edukasi</h1>
+                  <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Tersedia 10 mekanisme permainan berbeda dengan pengaturan waktu, skor, dan integrasi bank soal.</p>
+                </div>
+                <button onclick="app.launchWaitingRoom()" class="btn-3d px-7 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-sm shadow-[0_6px_0_#047857] flex items-center gap-2.5 animate-pulse-glow">
+                  <i class="ph-fill ph-rocket-launch text-xl"></i>
+                  <span>BUKA WAITING ROOM (#${app.roomCode})</span>
+                </button>
+              </div>
+
+              <!-- 10 Game Selection Cards Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                ${GAME_MODES.map(g => {
+                  const selected = app.selectedGameMode.id === g.id;
+                  return `
+                    <div onclick="app.selectedGameMode = GAME_MODES.find(x=>x.id==='${g.id}'); app.renderPage('game-creator')" class="cursor-pointer rounded-3xl p-5 border-2 transition-all flex flex-col justify-between relative overflow-hidden ${
+                      selected
+                        ? 'border-indigo-600 bg-indigo-50/40 dark:bg-indigo-950/40 shadow-xl scale-[1.02]'
+                        : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-300 hover:-translate-y-1'
+                    }">
+                      ${selected ? '<span class="absolute top-3 right-3 w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs"><i class="ph-bold ph-check"></i></span>' : ''}
+                      <div>
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${g.color} text-white text-3xl flex items-center justify-center shadow-md mb-4">
+                          ${g.icon}
+                        </div>
+                        <div class="flex items-center gap-1.5 mb-1">
+                          <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">${g.category}</span>
+                        </div>
+                        <h3 class="font-display text-base font-bold leading-snug">${g.title}</h3>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">${g.desc}</p>
+                      </div>
+                      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] font-bold text-slate-400">
+                        <span>👥 ${g.players}</span>
+                        <span>🔥 ${g.difficulty}</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+
+              <!-- Room Configuration Panel -->
+              <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 border-indigo-100 dark:border-slate-800 grid grid-cols-1 md:grid-cols-4 gap-5 items-center">
+                <div>
+                  <div class="text-xs font-bold text-slate-400">Mode Terpilih</div>
+                  <div class="font-display text-xl font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2 mt-0.5">
+                    <span>${app.selectedGameMode.icon}</span>
+                    <span>${app.selectedGameMode.title}</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold mb-1">Sumber Soal</label>
+                  <div class="px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 font-bold text-xs flex items-center justify-between">
+                    <span>${app.selectedQuestionIds.length} Soal Terpilih</span>
+                    <button onclick="app.navigate('questions')" class="text-indigo-600 underline">Ubah</button>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold mb-1">Timer Per Soal</label>
+                  <select class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 font-bold text-xs">
+                    <option>20 Detik (Standar)</option>
+                    <option>15 Detik (Kilat)</option>
+                    <option>30 Detik (Santai)</option>
+                  </select>
+                </div>
+                <div>
+                  <button onclick="app.launchWaitingRoom()" class="btn-3d w-full py-3.5 rounded-2xl bg-indigo-600 text-white font-extrabold text-xs shadow-[0_4px_0_#3730a3]">
+                    Masuk Waiting Room →
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
+        // -------------------------------------------------------------------
+        // 10. SPECTACULAR WAITING ROOM (30+ AVATARS, EMOJI REACTIONS & PLAY)
+        // -------------------------------------------------------------------
+        waitingRoomPage() {
+          return `
+            <div class="space-y-6">
+              <!-- Animated Arena Top Header -->
+              <div class="relative rounded-[2rem] bg-gradient-to-r from-indigo-700 via-purple-700 to-fuchsia-700 p-6 sm:p-8 text-white shadow-2xl overflow-hidden">
+                <div class="absolute inset-0 bg-dot-pattern opacity-20"></div>
+                <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+                  
+                  <!-- Room Code Card -->
+                  <div class="bg-white text-slate-900 rounded-3xl p-5 shadow-xl flex items-center gap-5 border-4 border-amber-300">
+                    <div>
+                      <div class="text-[11px] font-extrabold uppercase tracking-widest text-indigo-600">KODE ROOM LIVE</div>
+                      <div class="font-display text-4xl sm:text-5xl font-bold tracking-widest text-slate-900 mt-0.5">${app.roomCode}</div>
+                    </div>
+                    <button onclick="app.copyRoomCode()" class="btn-3d w-12 h-12 rounded-2xl bg-indigo-100 hover:bg-indigo-200 text-indigo-700 flex items-center justify-center text-xl shadow-[0_3px_0_#a5b4fc]" title="Salin Kode">
+                      <i class="ph-bold ph-copy"></i>
+                    </button>
+                  </div>
+
+                  <!-- Game Info Center -->
+                  <div class="text-center">
+                    <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 text-xs font-extrabold mb-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span> MENUNGGU PEMAIN BERGABUNG
+                    </span>
+                    <h1 class="font-display text-2xl sm:text-4xl font-bold">${app.selectedGameMode.icon} ${app.selectedGameMode.title}</h1>
+                    <p class="text-xs sm:text-sm text-indigo-200 mt-1">${app.selectedQuestionIds.length} Pertanyaan • Host: Pak Budi Santoso</p>
+                  </div>
+
+                  <!-- GIANT GLOWING TEACHER PLAY BUTTON -->
+                  <div class="flex flex-col items-center gap-2">
+                    <button onclick="app.triggerCountdownAndStart()" class="btn-3d animate-pulse-glow px-9 py-5 rounded-3xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-slate-950 font-display font-bold text-2xl shadow-[0_7px_0_#065f46] flex items-center gap-3">
+                      <i class="ph-fill ph-play-circle text-3xl"></i>
+                      <span>MULAI PLAY!</span>
+                    </button>
+                    <span class="text-[11px] font-bold text-emerald-200">Klik untuk memulai hitung mundur 3-2-1</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Main Lobby Grid: Avatar Picker (30 Avatars) + Connected Players + Live Chat -->
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- 30+ Original Avatar Selector (5 cols) -->
+                <div class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-slate-100 dark:border-slate-800 shadow-sm">
+                  <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-display text-lg font-bold">🎭 Pilih Karakter Avatar (30)</h3>
+                    <span class="text-xs font-bold text-indigo-600">Aktif: ${app.userAvatar}</span>
+                  </div>
+                  <div class="grid grid-cols-5 sm:grid-cols-6 gap-2 max-h-72 overflow-y-auto pr-1">
+                    ${AVATARS.map(av => `
+                      <button onclick="app.selectLobbyAvatar('${av.emoji}', '${av.name}')" title="${av.name}" class="aspect-square rounded-2xl flex flex-col items-center justify-center text-2xl transition-all border-2 ${
+                        app.userAvatar === av.emoji
+                          ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950 scale-105 shadow-md'
+                          : 'border-transparent bg-slate-50 dark:bg-slate-800 hover:scale-105'
+                      }">
+                        <span>${av.emoji}</span>
+                      </button>
+                    `).join('')}
+                  </div>
+
+                  <!-- Emoji Reaction Bar -->
+                  <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div class="text-xs font-bold text-slate-400 mb-2">Kirim Reaksi Cepat ke Arena:</div>
+                    <div class="flex items-center justify-between gap-2">
+                      ${['🔥', '🎉', '😎', '🚀', '❤️', '👏'].map(em => `
+                        <button onclick="app.sendLobbyReaction('${em}')" class="btn-3d flex-1 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-100 text-xl">
+                          ${em}
+                        </button>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Connected Players Grid (4 cols) -->
+                <div class="lg:col-span-4 bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-slate-100 dark:border-slate-800 shadow-sm">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-display text-lg font-bold">👥 Pemain di Lobby</h3>
+                    <span class="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs">${app.roomPlayers.length} Online</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    ${app.roomPlayers.map(p => `
+                      <div class="p-3 rounded-2xl border-2 ${p.isYou ? 'border-amber-400 bg-amber-50/50 dark:bg-amber-950/30' : 'border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60'} flex items-center gap-2.5">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-2xl flex items-center justify-center shrink-0 shadow-xs">
+                          ${p.isYou ? app.userAvatar : p.avatar}
+                        </div>
+                        <div class="min-w-0">
+                          <div class="font-bold text-xs truncate">${p.name} ${p.isYou ? '(Kamu)' : ''}</div>
+                          <div class="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Siap!
+                          </div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <!-- Live Lobby Chat (3 cols) -->
+                <div class="lg:col-span-3 bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <h3 class="font-display text-lg font-bold mb-3">💬 Obrolan Lobby</h3>
+                    <div id="lobby-chat-list" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                      ${app.roomChat.map(c => `
+                        <div class="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 text-xs">
+                          <div class="font-extrabold text-indigo-600 dark:text-indigo-400">${c.avatar} ${c.sender}</div>
+                          <div class="text-slate-600 dark:text-slate-300 mt-0.5">${c.text}</div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                  <form onsubmit="app.sendLobbyChat(event)" class="mt-3 flex gap-1.5">
+                    <input id="lobby-chat-input" type="text" placeholder="Ketik pesan..." class="flex-1 rounded-xl bg-slate-100 dark:bg-slate-800 px-3 py-2 text-xs focus:outline-none" />
+                    <button type="submit" class="px-3 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs">
+                      <i class="ph-bold ph-paper-plane-right"></i>
+                    </button>
+                  </form>
+                </div>
+
+              </div>
+            </div>
+          `;
+        },
+
+        // -------------------------------------------------------------------
+        // 11. LIVE GAME ARENA INTERFACE (COUNTDOWN, STREAK, COMBO & FEEDBACK)
+        // -------------------------------------------------------------------
+        gameArenaPage() {
+          const activeQs = app.questions.filter(q => app.selectedQuestionIds.includes(q.id));
+          const list = activeQs.length ? activeQs : app.questions;
+          const q = list[app.gameState.qIndex % list.length];
+          const optColors = [
+            'from-rose-500 to-red-600 shadow-[0_5px_0_#9f1239]',
+            'from-sky-500 to-blue-600 shadow-[0_5px_0_#1e40af]',
+            'from-amber-400 to-orange-500 shadow-[0_5px_0_#b45309] text-slate-950',
+            'from-emerald-500 to-teal-600 shadow-[0_5px_0_#065f46]'
+          ];
+
+          return `
+            <div class="max-w-4xl mx-auto space-y-6">
+              <!-- Live Arena HUD Bar -->
+              <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 border-2 border-indigo-100 dark:border-slate-800 shadow-md flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-2xl flex items-center justify-center">${app.userAvatar}</div>
+                  <div>
+                    <div class="text-xs font-extrabold text-slate-400">SOAL ${app.gameState.qIndex + 1} DARI ${list.length}</div>
+                    <div class="font-display font-bold text-base">${app.selectedGameMode.title}</div>
+                  </div>
+                </div>
+
+                <!-- Circular Timer Pill -->
+                <div class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border-2 border-amber-300">
+                  <i class="ph-fill ph-timer text-amber-500 text-xl"></i>
+                  <span id="arena-timer" class="font-display font-bold text-2xl text-amber-600">${app.gameState.timeLeft}s</span>
+                </div>
+
+                <!-- Score & Streak Counter -->
+                <div class="flex items-center gap-3">
+                  <div class="px-3.5 py-2 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 font-extrabold text-xs">
+                    🔥 Streak ${app.gameState.streak}x
+                  </div>
+                  <div class="px-4 py-2 rounded-2xl bg-indigo-600 text-white font-display font-bold text-lg">
+                    ${app.gameState.score} XP
+                  </div>
+                </div>
+              </div>
+
+              <!-- Question Stage Card -->
+              <div class="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 text-white rounded-[2rem] p-8 sm:p-10 shadow-2xl text-center relative overflow-hidden">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-white/15 text-xs font-extrabold mb-4">${q.subject} • +${q.points} Poin</span>
+                <h2 class="font-display text-xl sm:text-3xl font-bold leading-snug max-w-2xl mx-auto">
+                  ${q.text}
+                </h2>
+              </div>
+
+              <!-- 4 Colorful Tactile Answer Buttons -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="arena-options-grid">
+                ${q.options.map((opt, idx) => `
+                  <button onclick="app.submitArenaAnswer(${idx})" class="btn-3d p-5 rounded-3xl bg-gradient-to-r ${optColors[idx]} text-white font-bold text-base sm:text-lg text-left flex items-center gap-4 hover:brightness-105">
+                    <span class="w-10 h-10 rounded-2xl bg-black/20 flex items-center justify-center font-display font-bold text-xl shrink-0">
+                      ${String.fromCharCode(65 + idx)}
+                    </span>
+                    <span class="flex-1">${opt}</span>
+                  </button>
+                `).join('')}
+              </div>
+
+              <!-- Feedback Explanation Box (Hidden until answered) -->
+              <div id="arena-feedback-box" class="hidden rounded-3xl p-5 border-2 text-center space-y-3"></div>
+            </div>
+          `;
+        },
+
+        // -------------------------------------------------------------------
+        // 12. LEADERBOARD — HALL OF CHAMPIONS (3D PODIUM + RANKINGS)
+        // -------------------------------------------------------------------
+        leaderboardPage() {
+          const top3 = LEADERBOARD_PLAYERS.slice(0, 3);
+          const rest = LEADERBOARD_PLAYERS.slice(3);
+
+          return `
+            <div class="space-y-8">
+              <!-- Spectacular Champions Header -->
+              <div class="relative rounded-[2rem] bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 p-6 sm:p-8 text-slate-950 shadow-xl overflow-hidden">
+                <div class="absolute right-6 -bottom-4 text-8xl opacity-25">🏆</div>
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <span class="px-3 py-1 rounded-full bg-slate-950/15 font-extrabold text-xs uppercase tracking-wider">MUSIM KOMPETISI 2026</span>
+                    <h1 class="font-display text-3xl sm:text-4xl font-bold mt-1">Hall of Champions 👑</h1>
+                    <p class="text-xs sm:text-sm font-semibold text-amber-950/80 mt-0.5">Peringkat diperbarui secara real-time berdasarkan XP tervalidasi dari kuis & misi belajar.</p>
+                  </div>
+
+                  <!-- Scope & Period Filter Pills -->
+                  <div class="flex flex-wrap gap-2">
+                    ${['Global', 'Kelas 10-A', 'Mingguan', 'All-Time'].map(tab => `
+                      <button onclick="app.lbScope='${tab}'; app.renderPage('leaderboard')" class="px-4 py-2 rounded-xl font-extrabold text-xs transition-all ${
+                        app.lbScope === tab ? 'bg-slate-950 text-amber-300 shadow-md' : 'bg-white/40 hover:bg-white/70 text-slate-950'
+                      }">
+                        ${tab}
+                      </button>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3D SPECTACULAR PODIUM (Rank 2 Left, Rank 1 Center Elevated, Rank 3 Right) -->
+              <div class="grid grid-cols-3 gap-3 sm:gap-6 items-end max-w-4xl mx-auto pt-8 px-2">
+                
+                <!-- 2ND PLACE (LEFT) -->
+                <div class="podium-step flex flex-col items-center text-center">
+                  <div class="relative mb-3">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-slate-200 to-slate-400 border-4 border-white shadow-xl text-3xl sm:text-4xl flex items-center justify-center">
+                      ${top3[1].avatar}
+                    </div>
+                    <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-slate-700 text-white font-extrabold text-[10px]">🥈 #2</span>
+                  </div>
+                  <div class="font-display font-bold text-sm sm:text-base truncate max-w-full">${top3[1].name}</div>
+                  <div class="text-xs font-extrabold text-indigo-600 dark:text-indigo-400">${top3[1].xp.toLocaleString()} XP</div>
+                  <div class="w-full h-28 sm:h-36 mt-3 rounded-t-3xl bg-gradient-to-b from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 border-t-4 border-white/60 flex flex-col items-center justify-center shadow-inner">
+                    <span class="font-display text-3xl font-bold text-slate-700 dark:text-slate-200">2</span>
+                    <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Lv. ${top3[1].level}</span>
+                  </div>
+                </div>
+
+                <!-- 1ST PLACE (CENTER - TALLEST WITH GOLD CROWN) -->
+                <div class="podium-step flex flex-col items-center text-center">
+                  <div class="text-3xl sm:text-4xl animate-bounce mb-1">👑</div>
+                  <div class="relative mb-3">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 border-4 border-white shadow-2xl text-4xl sm:text-5xl flex items-center justify-center">
+                      ${top3[0].avatar}
+                    </div>
+                    <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-amber-500 text-slate-950 font-extrabold text-[11px] shadow">🥇 #1</span>
+                  </div>
+                  <div class="font-display font-bold text-base sm:text-lg truncate max-w-full">${top3[0].name}</div>
+                  <div class="text-xs sm:text-sm font-extrabold text-amber-600">${top3[0].xp.toLocaleString()} XP</div>
+                  <div class="w-full h-36 sm:h-48 mt-3 rounded-t-3xl bg-gradient-to-b from-amber-300 via-amber-400 to-orange-500 border-t-4 border-yellow-100 flex flex-col items-center justify-center shadow-xl text-slate-950">
+                    <span class="font-display text-4xl sm:text-5xl font-bold">1</span>
+                    <span class="text-xs font-extrabold uppercase tracking-wider mt-1">${top3[0].badge}</span>
+                  </div>
+                </div>
+
+                <!-- 3RD PLACE (RIGHT) -->
+                <div class="podium-step flex flex-col items-center text-center">
+                  <div class="relative mb-3">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-amber-600 to-orange-800 border-4 border-white shadow-xl text-3xl sm:text-4xl flex items-center justify-center">
+                      ${top3[2].avatar}
+                    </div>
+                    <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-orange-800 text-white font-extrabold text-[10px]">🥉 #3</span>
+                  </div>
+                  <div class="font-display font-bold text-sm sm:text-base truncate max-w-full">${top3[2].name}</div>
+                  <div class="text-xs font-extrabold text-indigo-600 dark:text-indigo-400">${top3[2].xp.toLocaleString()} XP</div>
+                  <div class="w-full h-24 sm:h-28 mt-3 rounded-t-3xl bg-gradient-to-b from-orange-300 to-amber-500 dark:from-amber-900 dark:to-orange-950 border-t-4 border-amber-200/60 flex flex-col items-center justify-center shadow-inner">
+                    <span class="font-display text-3xl font-bold text-amber-950 dark:text-amber-200">3</span>
+                    <span class="text-[10px] font-bold text-amber-900 dark:text-amber-300">Lv. ${top3[2].level}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ranking Cards List (Ranks 4+) -->
+              <div class="max-w-4xl mx-auto space-y-3">
+                ${rest.map(p => `
+                  <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border-2 border-slate-100 dark:border-slate-800 hover:border-indigo-400 flex items-center justify-between gap-4 shadow-xs transition-all">
+                    <div class="flex items-center gap-3 sm:gap-4">
+                      <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 font-display font-bold text-sm flex items-center justify-center">
+                        #${p.rank}
+                      </div>
+                      <div class="w-11 h-11 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-2xl flex items-center justify-center">${p.avatar}</div>
+                      <div>
+                        <div class="font-bold text-sm flex items-center gap-2">
+                          <span>${p.name}</span>
+                          <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500">${p.class}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-semibold">Level ${p.level} • 🔥 Streak ${p.streak} hari • ${p.badge}</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-bold ${p.movement === 'up' ? 'text-emerald-500' : p.movement === 'down' ? 'text-rose-500' : 'text-slate-400'}">
+                        ${p.movement === 'up' ? '▲ Naik' : p.movement === 'down' ? '▼ Turun' : '• Stabil'}
+                      </span>
+                      <div class="font-display font-bold text-base text-indigo-600 dark:text-indigo-400">${p.xp.toLocaleString()} XP</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        },
+
+        // -------------------------------------------------------------------
+        // 13. STUDENT RESULTS & PERFORMANCE ANALYTICS
+        // -------------------------------------------------------------------
+        resultsPage() {
+          const totalAnswered = app.gameState.correctCount + app.gameState.wrongCount;
+          const accuracy = totalAnswered > 0 ? Math.round((app.gameState.correctCount / totalAnswered) * 100) : 92;
+          const score = app.gameState.score > 0 ? app.gameState.score : 1450;
+
+          return `
+            <div class="space-y-6">
+              <!-- Score Hero Card -->
+              <div class="rounded-[2rem] bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 p-6 sm:p-8 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-5">
+                  <div class="w-20 h-20 rounded-3xl bg-white/20 backdrop-blur-md text-5xl flex items-center justify-center shadow-lg">🎖️</div>
+                  <div>
+                    <span class="px-3 py-1 rounded-full bg-black/20 text-xs font-extrabold uppercase">LAPORAN PERFORMA SESI</span>
+                    <h1 class="font-display text-3xl sm:text-4xl font-bold mt-1">Predikat: A+ (Luar Biasa!)</h1>
+                    <p class="text-xs sm:text-sm text-emerald-100 mt-1">Sesi: <strong>${app.selectedGameMode.title}</strong> • Siswa: <strong>${app.userName}</strong></p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button onclick="app.exportReportFile()" class="btn-3d px-5 py-3 rounded-2xl bg-white text-teal-800 font-extrabold text-xs shadow-lg flex items-center gap-2">
+                    <i class="ph-bold ph-file-arrow-down text-lg"></i> Unduh Laporan Hasil
+                  </button>
+                  <button onclick="app.navigate('waiting-room')" class="btn-3d px-5 py-3 rounded-2xl bg-amber-400 text-slate-950 font-extrabold text-xs shadow-[0_4px_0_#b45309]">
+                    Main Lagi 🎮
+                  </button>
+                </div>
+              </div>
+
+              <!-- Key Result Metrics -->
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border-2 border-slate-100 dark:border-slate-800 text-center">
+                  <div class="text-3xl mb-1">⚡</div>
+                  <div class="font-display text-3xl font-bold text-indigo-600">${score} XP</div>
+                  <div class="text-xs font-bold text-slate-400">Total Skor Diperoleh</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border-2 border-slate-100 dark:border-slate-800 text-center">
+                  <div class="text-3xl mb-1">🎯</div>
+                  <div class="font-display text-3xl font-bold text-emerald-600">${accuracy}%</div>
+                  <div class="text-xs font-bold text-slate-400">Tingkat Akurasi</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border-2 border-slate-100 dark:border-slate-800 text-center">
+                  <div class="text-3xl mb-1">✅</div>
+                  <div class="font-display text-3xl font-bold text-teal-600">${totalAnswered > 0 ? app.gameState.correctCount : 11} / ${totalAnswered > 0 ? totalAnswered : 12}</div>
+                  <div class="text-xs font-bold text-slate-400">Jawaban Benar</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border-2 border-slate-100 dark:border-slate-800 text-center">
+                  <div class="text-3xl mb-1">⏱️</div>
+                  <div class="font-display text-3xl font-bold text-amber-500">4.2 dtk</div>
+                  <div class="text-xs font-bold text-slate-400">Rata-rata Kecepatan</div>
+                </div>
+              </div>
+
+              <!-- Question-by-Question Review & Teacher Feedback -->
+              <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 border-slate-100 dark:border-slate-800 space-y-4">
+                <h3 class="font-display text-xl font-bold">📋 Analisis Butir Soal & Pembahasan</h3>
+                <div class="space-y-3">
+                  ${app.questions.map((q, i) => `
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <div class="text-xs font-extrabold text-indigo-600">Soal #${i+1} • ${q.subject}</div>
+                        <div class="font-bold text-sm mt-0.5">${q.text}</div>
+                        <div class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">💡 Pembahasan: ${q.explanation}</div>
+                      </div>
+                      <span class="px-3 py-1 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs shrink-0 self-start sm:self-center">
+                        ✔ Terjawab Tepat
+                      </span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
+        // -------------------------------------------------------------------
+        // 14. PROFILE & ACHIEVEMENT CENTER (RARITY BADGES & CUSTOMIZATION)
+        // -------------------------------------------------------------------
+        profilePage() {
+          const badges = [
+            { name: 'First Victory', icon: '🥇', rarity: 'Common', bg: 'from-slate-400 to-slate-600', desc: 'Menangkan sesi game pertama.' },
+            { name: 'Streak Master 14D', icon: '🔥', rarity: 'Rare', bg: 'from-sky-400 to-blue-600', desc: 'Belajar konsisten 14 hari beruntun.' },
+            { name: 'Lightning Mind', icon: '⚡', rarity: 'Epic', bg: 'from-purple-500 to-fuchsia-600', desc: 'Jawab 5 soal berturut-turut di bawah 3 detik.' },
+            { name: 'Eduvora Grand Legend', icon: '🐉', rarity: 'Legendary', bg: 'from-amber-400 via-orange-500 to-rose-600', desc: 'Capai Top 3 Hall of Champions.' }
+          ];
+
+          return `
+            <div class="space-y-6">
+              <!-- Game Profile Banner -->
+              <div class="rounded-[2rem] bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div class="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+                  <div class="w-24 h-24 rounded-3xl bg-white/20 backdrop-blur-md border-4 border-amber-300 text-6xl flex items-center justify-center shadow-2xl">
+                    ${app.userAvatar}
+                  </div>
+                  <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 text-slate-950 font-extrabold text-xs mb-2">
+                      LEVEL ${app.userLevel} • ${app.userXP.toLocaleString()} XP
+                    </div>
+                    <h1 class="font-display text-3xl font-bold">${app.userName}</h1>
+                    <p class="text-xs sm:text-sm text-indigo-100 mt-1">Kolektor Trofi • 18 Lencana Terbuka • Streak ${app.userStreak} Hari</p>
+                  </div>
+                </div>
+                <button onclick="app.navigate('waiting-room')" class="btn-3d px-5 py-3 rounded-2xl bg-white text-indigo-700 font-extrabold text-xs shadow-lg">
+                  Ganti Avatar Karakter 🎭
+                </button>
+              </div>
+
+              <!-- Achievement Center by Rarity -->
+              <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 border-slate-100 dark:border-slate-800">
+                <h3 class="font-display text-xl font-bold mb-4">🏅 Achievement Center (Common • Rare • Epic • Legendary)</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  ${badges.map(b => `
+                    <div class="rounded-3xl p-5 bg-gradient-to-br ${b.bg} text-white shadow-lg flex flex-col justify-between">
+                      <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-0.5 rounded-full bg-black/25 text-[10px] font-extrabold uppercase tracking-wider">${b.rarity}</span>
+                        <span class="text-4xl">${b.icon}</span>
+                      </div>
+                      <div class="mt-4">
+                        <h4 class="font-display text-lg font-bold">${b.name}</h4>
+                        <p class="text-xs text-white/85 mt-1">${b.desc}</p>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      },
+
+      // =====================================================================
+      // INTERACTIVE FEATURE HANDLERS (EXPORTS, UPLOADS, LIVE GAME, REWARDS)
+      // =====================================================================
+      claimRewardChest() {
+        sfx.play('levelup');
+        this.userXP += 150;
+        document.getElementById('sidebar-xp').textContent = this.userXP.toLocaleString();
+        if (window.confetti) {
+          confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+        }
+        this.toast('Selamat! Kamu mendapatkan +150 XP & Lencana Petualang Emas! 🎉', 'success');
+      },
+
+      openMaterialDetail(id) {
+        sfx.play('click');
+        const m = this.materials.find(x => x.id === id);
+        if (!m) return;
+        this.openModal(`
+          <div>
+            <div class="h-40 bg-gradient-to-br ${m.color} p-6 text-white flex flex-col justify-between relative overflow-hidden">
+              <div class="flex justify-between items-center relative z-10">
+                <span class="px-3 py-1 rounded-xl bg-white/20 text-xs font-extrabold">${m.category}</span>
+                <button onclick="app.closeModal()" class="w-9 h-9 rounded-xl bg-black/25 flex items-center justify-center"><i class="ph-bold ph-x"></i></button>
+              </div>
+              <div class="relative z-10 flex items-center gap-3">
+                <span class="text-4xl">${m.icon}</span>
+                <h3 class="font-display text-xl sm:text-2xl font-bold">${m.title}</h3>
+              </div>
+            </div>
+            <div class="p-6 space-y-4">
+              <div class="grid grid-cols-3 gap-3 text-center text-xs">
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800">
+                  <div class="text-slate-400">Format & Ukuran</div>
+                  <div class="font-bold mt-0.5">${m.type} • ${m.size}</div>
+                </div>
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800">
+                  <div class="text-slate-400">Penyusun</div>
+                  <div class="font-bold mt-0.5 truncate">${m.author}</div>
+                </div>
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800">
+                  <div class="text-slate-400">Statistik Akses</div>
+                  <div class="font-bold mt-0.5">${m.views} Dilihat</div>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${m.summary}</p>
+              <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-2 justify-end">
+                <button onclick="app.exportMaterial('${m.id}', 'HTML')" class="btn-3d px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-[0_3px_0_#065f46]">
+                  Unduh HTML Interaktif
+                </button>
+                <button onclick="app.exportMaterial('${m.id}', 'DOC')" class="btn-3d px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-[0_3px_0_#3730a3]">
+                  Export DOCX
+                </button>
+              </div>
+            </div>
+          </div>
+        `);
+      },
+
+      exportMaterial(id, format) {
+        sfx.play('correct');
+        const m = this.materials.find(x => x.id === id);
+        if (!m) return;
+        const content = format === 'HTML'
+          ? `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${m.title}</title></head><body style="font-family:sans-serif;padding:40px;"><h1>${m.title}</h1><p><strong>Kategori:</strong> ${m.category} | <strong>Penulis:</strong> ${m.author}</p><hr/><p>${m.summary}</p></body></html>`
+          : `EDUVORA LEARNING MODULE\nJudul: ${m.title}\nKategori: ${m.category}\nPenulis: ${m.author}\nTanggal: ${m.date}\n\nRingkasan Materi:\n${m.summary}`;
+        const mime = format === 'HTML' ? 'text/html' : 'application/msword';
+        const ext = format === 'HTML' ? 'html' : 'doc';
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${m.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${ext}`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.toast(`File "${m.title}" berhasil diekspor sebagai ${format}!`, 'success');
+      },
+
+      openUploadMaterialModal() {
+        sfx.play('click');
+        this.openModal(`
+          <form onsubmit="app.handleMaterialUpload(event)" class="p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display text-xl font-bold">📤 Unggah Materi Belajar Baru</h3>
+              <button type="button" onclick="app.closeModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">Judul Materi</label>
+              <input id="up-mat-title" required placeholder="Contoh: Hukum Newton & Dinamika Gerak" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 text-xs font-bold" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold mb-1">Kategori</label>
+                <select id="up-mat-cat" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 text-xs font-bold">
+                  <option>Sains & Fisika</option>
+                  <option>Matematika</option>
+                  <option>Biologi</option>
+                  <option>Informatika</option>
+                  <option>Sejarah</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold mb-1">Tipe Dokumen</label>
+                <select id="up-mat-type" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 text-xs font-bold">
+                  <option>PDF</option>
+                  <option>DOCX</option>
+                  <option>HTML</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">Deskripsi Singkat</label>
+              <textarea id="up-mat-desc" required rows="2" placeholder="Ringkasan isi modul..." class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 text-xs"></textarea>
+            </div>
+            <button type="submit" class="btn-3d w-full py-3 rounded-xl bg-indigo-600 text-white font-extrabold text-xs shadow-[0_4px_0_#3730a3]">
+              Publikasikan ke Perpustakaan
+            </button>
+          </form>
+        `);
+      },
+
+      handleMaterialUpload(e) {
+        e.preventDefault();
+        const title = document.getElementById('up-mat-title').value;
+        const category = document.getElementById('up-mat-cat').value;
+        const type = document.getElementById('up-mat-type').value;
+        const summary = document.getElementById('up-mat-desc').value;
+        this.materials.unshift({
+          id: 'm' + Date.now(),
+          title, category, type, size: '3.1 MB',
+          author: this.userName, date: 'Baru saja',
+          views: 1, downloads: 0, status: 'Published',
+          color: 'from-indigo-500 to-purple-600', icon: '📘', summary
+        });
+        this.closeModal();
+        this.renderSidebar();
+        this.renderPage('materials');
+        this.toast('Materi berhasil diunggah & dipublikasikan!', 'success');
+      },
+
+      openVideoUploadModal() {
+        sfx.play('click');
+        this.openModal(`
+          <form onsubmit="app.handleVideoUpload(event)" class="p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display text-xl font-bold">🎥 Unggah Video Pembelajaran Lokal</h3>
+              <button type="button" onclick="app.closeModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">Judul Video</label>
+              <input id="up-vid-title" required placeholder="Contoh: Eksperimen Reaksi Kimia Eksoterm" class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 text-xs font-bold" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">Pilih File Video (MP4 / WebM dari Perangkat)</label>
+              <input id="up-vid-file" type="file" accept="video/*" class="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:font-bold file:bg-rose-50 file:text-rose-600" />
+            </div>
+            <button type="submit" class="btn-3d w-full py-3 rounded-xl bg-rose-600 text-white font-extrabold text-xs shadow-[0_4px_0_#9f1239]">
+              Unggah & Tayangkan di Stream Studio
+            </button>
+          </form>
+        `);
+      },
+
+      handleVideoUpload(e) {
+        e.preventDefault();
+        const title = document.getElementById('up-vid-title').value;
+        const fileInput = document.getElementById('up-vid-file');
+        const blobUrl = fileInput.files && fileInput.files[0] ? URL.createObjectURL(fileInput.files[0]) : null;
+        const newVid = {
+          id: 'v' + Date.now(),
+          title, category: 'Sains & Fisika', duration: '04:20',
+          views: '1', progress: 0, author: this.userName,
+          uploaded: 'Baru saja', gradient: 'from-rose-500 to-purple-700',
+          icon: '🎬', completed: false, blobUrl,
+          desc: 'Video pembelajaran yang diunggah langsung ke Eduvora Stream Studio.'
+        };
+        this.videos.unshift(newVid);
+        this.activeVideo = newVid;
+        this.closeModal();
+        this.renderPage('videos');
+        this.toast('Video berhasil diunggah dan siap diputar!', 'success');
+      },
+
+      openVideoPlayer(id) {
+        this.activeVideo = this.videos.find(x => x.id === id) || this.videos[0];
+        this.navigate('videos');
+      },
+
+      simulateVideoPlay(id) {
+        sfx.play('correct');
+        const vid = this.videos.find(x => x.id === id);
+        if (vid) {
+          vid.progress = 100;
+          vid.completed = true;
+        }
+        this.userXP += 50;
+        document.getElementById('sidebar-xp').textContent = this.userXP.toLocaleString();
+        this.renderPage('videos');
+        this.toast('Video selesai diputar! Kamu mendapatkan +50 XP! 🎬', 'success');
+      },
+
+      toggleQuestionSelect(id) {
+        sfx.play('click');
+        if (this.selectedQuestionIds.includes(id)) {
+          this.selectedQuestionIds = this.selectedQuestionIds.filter(x => x !== id);
+        } else {
+          this.selectedQuestionIds.push(id);
+        }
+        this.renderPage('questions');
+      },
+
+      saveNewQuestion(e) {
+        e.preventDefault();
+        sfx.play('correct');
+        const newQ = {
+          id: 'q' + Date.now(),
+          subject: document.getElementById('nq-subject').value,
+          difficulty: document.getElementById('nq-diff').value,
+          points: 150,
+          text: document.getElementById('nq-text').value,
+          options: [
+            document.getElementById('nq-opt0').value,
+            document.getElementById('nq-opt1').value,
+            document.getElementById('nq-opt2').value,
+            document.getElementById('nq-opt3').value
+          ],
+          correct: parseInt(document.getElementById('nq-correct').value, 10),
+          explanation: 'Soal kustom dibuat oleh ' + this.userName
+        };
+        this.questions.unshift(newQ);
+        this.selectedQuestionIds.push(newQ.id);
+        this.questionTab = 'bank';
+        this.renderSidebar();
+        this.renderPage('questions');
+        this.toast('Soal baru berhasil ditambahkan & dipilih untuk Live Room!', 'success');
+      },
+
+      downloadTemplateCSV() {
+        const csv = 'Subject,Difficulty,Question,OptionA,OptionB,OptionC,OptionD,CorrectIndex\nMatematika,Mudah,"Berapakah akar kuadrat dari 144?",10,11,12,14,2';
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'eduvora_question_template.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.toast('Template CSV berhasil diunduh!', 'info');
+      },
+
+      simulateBulkImport() {
+        sfx.play('levelup');
+        const imported = [
+          { id: 'qi1_' + Date.now(), subject: 'Sains & Fisika', difficulty: 'Mudah', points: 100, text: 'Kecepatan cahaya di ruang hampa mendekati...', options: ['300.000 km/detik', '150.000 km/detik', '3.000 km/detik', '30.000 km/detik'], correct: 0, explanation: 'Kecepatan cahaya c ≈ 299.792 km/s.' },
+          { id: 'qi2_' + Date.now(), subject: 'Informatika', difficulty: 'Sedang', points: 150, text: 'Bahasa markup standar untuk membuat struktur halaman web adalah...', options: ['Python', 'HTML', 'SQL', 'C++'], correct: 1, explanation: 'HTML (HyperText Markup Language) membentuk struktur dokumen web.' }
+        ];
+        this.questions.unshift(...imported);
+        imported.forEach(q => this.selectedQuestionIds.push(q.id));
+        this.questionTab = 'bank';
+        this.renderSidebar();
+        this.renderPage('questions');
+        this.toast('2 soal tervalidasi berhasil diimpor dan dihubungkan ke Room!', 'success');
+      },
+
+      launchWaitingRoom() {
+        if (this.selectedQuestionIds.length === 0) {
+          this.toast('Pilih minimal 1 soal terlebih dahulu!', 'warning');
+          return;
+        }
+        this.navigate('waiting-room');
+      },
+
+      copyRoomCode() {
+        const el = document.createElement('textarea');
+        el.value = this.roomCode;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        sfx.play('click');
+        this.toast(`Kode Room #${this.roomCode} disalin ke clipboard!`, 'success');
+      },
+
+      selectLobbyAvatar(emoji, name) {
+        sfx.play('click');
+        this.userAvatar = emoji;
+        const sideAv = document.getElementById('sidebar-avatar');
+        if (sideAv) sideAv.textContent = emoji;
+        this.renderPage('waiting-room');
+        this.toast(`Avatar diubah menjadi ${emoji} ${name}!`, 'info');
+      },
+
+      sendLobbyReaction(emoji) {
+        sfx.play('click');
+        this.toast(`Kamu mengirim reaksi ${emoji} ke seluruh pemain!`, 'info');
+      },
+
+      sendLobbyChat(e) {
+        e.preventDefault();
+        const input = document.getElementById('lobby-chat-input');
+        const msg = input.value.trim();
+        if (!msg) return;
+        this.roomChat.push({ sender: 'Kamu', avatar: this.userAvatar, text: msg });
+        input.value = '';
+        this.renderPage('waiting-room');
+      },
+
+      // ---------------------------------------------------------------------
+      // COUNTDOWN 3 - 2 - 1 -> START LIVE GAME ARENA
+      // ---------------------------------------------------------------------
+      triggerCountdownAndStart() {
+        let count = 3;
+        sfx.play('countdown');
+        this.openModal(`
+          <div class="p-10 text-center bg-gradient-to-br from-indigo-600 to-purple-800 text-white">
+            <div class="text-xs font-extrabold uppercase tracking-widest text-amber-300 mb-2">BERSIAP MASUK ARENA!</div>
+            <div id="countdown-num" class="font-display text-8xl font-bold my-4 animate-bounce">${count}</div>
+            <p class="text-sm text-indigo-200">${this.selectedGameMode.icon} ${this.selectedGameMode.title}</p>
+          </div>
+        `);
+
+        const iv = setInterval(() => {
+          count--;
+          const numEl = document.getElementById('countdown-num');
+          if (count > 0) {
+            sfx.play('countdown');
+            if (numEl) numEl.textContent = count;
+          } else if (count === 0) {
+            sfx.play('start');
+            if (numEl) numEl.textContent = 'START! 🚀';
+          } else {
+            clearInterval(iv);
+            this.closeModal();
+            this.gameState = {
+              qIndex: 0,
+              score: 0,
+              streak: 0,
+              correctCount: 0,
+              wrongCount: 0,
+              timeLeft: 20,
+              timerInterval: null,
+              answered: false,
+              answersLog: []
+            };
+            this.gameInProgress = true;
+            this.navigate('game-arena');
+          }
+        }, 850);
+      },
+
+      startGameQuestion() {
+        clearInterval(this.gameState.timerInterval);
+        this.gameState.timeLeft = 20;
+        this.gameState.answered = false;
+        this.gameState.timerInterval = setInterval(() => {
+          if (this.gameState.answered || this.currentPage !== 'game-arena' || !this.gameInProgress) {
+            clearInterval(this.gameState.timerInterval);
+            return;
+          }
+          this.gameState.timeLeft--;
+          const tEl = document.getElementById('arena-timer');
+          if (!tEl) {
+            clearInterval(this.gameState.timerInterval);
+            return;
+          }
+          tEl.textContent = this.gameState.timeLeft + 's';
+          if (this.gameState.timeLeft <= 0) {
+            this.submitArenaAnswer(-1);
+          }
+        }, 1000);
+      },
+
+      submitArenaAnswer(chosenIdx) {
+        if (this.gameState.answered) return;
+        clearInterval(this.gameState.timerInterval);
+
+        const fb = document.getElementById('arena-feedback-box');
+        if (!fb || this.currentPage !== 'game-arena') return;
+
+        this.gameState.answered = true;
+
+        const activeQs = this.questions.filter(q => this.selectedQuestionIds.includes(q.id));
+        const list = activeQs.length ? activeQs : this.questions;
+        const q = list[this.gameState.qIndex % list.length];
+        const isCorrect = chosenIdx === q.correct;
+
+        if (isCorrect) {
+          sfx.play('correct');
+          this.gameState.streak++;
+          this.gameState.correctCount++;
+          const bonus = this.gameState.streak * 25;
+          const earned = q.points + bonus;
+          this.gameState.score += earned;
+          this.userXP += earned;
+          if (window.confetti) confetti({ particleCount: 55, spread: 60, origin: { y: 0.7 } });
+          fb.className = 'rounded-3xl p-5 border-2 border-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 text-center space-y-3';
+          fb.innerHTML = `
+            <div class="font-display text-2xl font-bold text-emerald-600">🎉 JAWABAN TEPAT! +${earned} XP</div>
+            <p class="text-xs text-slate-600 dark:text-slate-300">${q.explanation}</p>
+            <button onclick="app.nextArenaQuestion()" class="btn-3d px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-extrabold text-xs shadow-[0_4px_0_#065f46]">
+              Soal Berikutnya →
+            </button>
+          `;
+        } else {
+          sfx.play('wrong');
+          this.gameState.streak = 0;
+          this.gameState.wrongCount++;
+          fb.className = 'rounded-3xl p-5 border-2 border-rose-400 bg-rose-50 dark:bg-rose-950/50 text-center space-y-3';
+          fb.innerHTML = `
+            <div class="font-display text-2xl font-bold text-rose-600">${chosenIdx === -1 ? '⏰ WAKTU HABIS!' : '😅 KURANG TEPAT!'}</div>
+            <p class="text-xs text-slate-600 dark:text-slate-300">Jawaban benar: <strong>${q.options[q.correct]}</strong>. ${q.explanation}</p>
+            <button onclick="app.nextArenaQuestion()" class="btn-3d px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-extrabold text-xs shadow-[0_4px_0_#3730a3]">
+              Lanjut →
+            </button>
+          `;
+        }
+        fb.classList.remove('hidden');
+      },
+
+      nextArenaQuestion() {
+        const activeQs = this.questions.filter(q => this.selectedQuestionIds.includes(q.id));
+        const list = activeQs.length ? activeQs : this.questions;
+        if (this.gameState.qIndex + 1 < list.length) {
+          this.gameState.qIndex++;
+          this.renderPage('game-arena');
+        } else {
+          this.gameInProgress = false;
+          sfx.play('levelup');
+          if (window.confetti) confetti({ particleCount: 120, spread: 85, origin: { y: 0.6 } });
+          this.navigate('results');
+        }
+      },
+
+      exportReportFile() {
+        sfx.play('correct');
+        const report = `LAPORAN HASIL BELAJAR EDUVORA\nNama: ${this.userName}\nMode Game: ${this.selectedGameMode.title}\nSkor XP: ${this.gameState.score || 1450}\nTanggal: 18 November 2026\nStatus: Lulus dengan Predikat A+`;
+        const blob = new Blob([report], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'laporan_hasil_eduvora.txt';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.toast('Laporan hasil siswa berhasil diunduh!', 'success');
+      }
+    };
+
+    // Initialize EDUVORA on window load
+    window.addEventListener('DOMContentLoaded', () => {
+      app.init();
+    });
+  </script>
+</body>
+</html>
